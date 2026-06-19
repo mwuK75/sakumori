@@ -2,33 +2,70 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>作問界隈 - クイズ大会</title>
+    <title>作問の森 - クイズにちょうせん！</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="forest-mode">
 
-    <div class="container">
-        <h1>作問界隈 クイズ大会！</h1>
+    <header class="forest-header">
+        <a href="index.html" class="btn-home">🏠 おうちへかえる</a>
+        <h1>🌳 作問の森 - みんなでクイズ 🌳</h1>
+        <div class="header-spacer"></div>
+    </header>
 
-        <div class="quiz-box">
-            <div id="quiz-info" class="quiz-info">第 1 問 （作った人: 〇〇 さん）</div>
-            
-            <div id="question-text" class="question-text">ここに問題が表示されます</div>
-
-            <div id="answer-box" class="answer-box" style="display: none;">
-                <span class="answer-label">こたえ：</span>
-                <span id="answer-text">ここに答えが表示されます</span>
+    <main class="game-board" id="game-board">
+        <div class="info-bar">
+            <div class="creator-info">👤 投稿者: @さくもんマイスター</div>
+            <div class="action-buttons">
+                <button class="btn-eval" id="btn-like">❤️ いいね <span id="like-count">0</span></button>
+                <button class="btn-eval" id="btn-certify">👑 良問認定</button>
             </div>
         </div>
 
-        <div class="control-box">
-            <button id="prev-btn" class="btn btn-nav">← 前の問題</button>
-            <button id="show-btn" class="btn btn-show">こたえを見る</button>
-            <button id="next-btn" class="btn btn-nav">次の問題 →</button>
+        <div class="bomber-stage">
+            <div class="player-slot" id="slot-0">
+                <div class="animal">🐻</div>
+                <div class="status-box">1人目</div>
+            </div>
+            <div class="player-slot" id="slot-1">
+                <div class="animal">🐰</div>
+                <div class="status-box">2人目</div>
+            </div>
+            <div class="player-slot" id="slot-2">
+                <div class="animal">🦊</div>
+                <div class="status-box">3人目</div>
+            </div>
+            <div class="player-slot" id="slot-3">
+                <div class="animal">🐿️</div>
+                <div class="status-box">4人目</div>
+            </div>
+            <div class="player-slot" id="slot-4">
+                <div class="animal">🦉</div>
+                <div class="status-box">5人目</div>
+            </div>
         </div>
 
-        <div class="navigation">
-            <a href="index.html" class="link-back">← ホームに戻る</a>
+        <div class="question-area">
+            <h2 id="question-text">Q. 環状線（山手線・大阪環状線）の駅の名前を答えよ！</h2>
+            
+            <div class="fuse-container">
+                <div class="fuse-bar" id="fuse-bar"></div>
+                <div class="bomb-icon">💣</div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div id="current-turn-label">📢 いまは 🐻 1人目 のターン！</div>
+            <input type="text" id="answer-input" placeholder="こたえを入力してEnter！">
+        </div>
+    </main>
+
+    <div class="result-overlay" id="result-screen" style="display: none;">
+        <div class="result-dialog" id="result-dialog">
+            <h1 id="result-title">結果</h1>
+            <p id="result-message">メッセージ</p>
+            <p id="result-answer" class="result-answer"></p>
+            <button class="btn-home" onclick="location.reload()">もう一度あそぶ</button>
         </div>
     </div>
 
