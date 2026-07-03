@@ -22,41 +22,57 @@
             </div>
         </div>
 
-        <div class="bomber-stage">
-            <div class="player-slot" id="slot-0">
-                <div class="animal">🐻</div>
-                <div class="status-box">1人目</div>
+        <div class="team-status">
+            <div class="status-item">
+                <span class="label">問題</span>
+                <span class="value" id="question-number">1/2</span>
             </div>
-            <div class="player-slot" id="slot-1">
-                <div class="animal">🐰</div>
-                <div class="status-box">2人目</div>
+            <div class="status-item">
+                <span class="label">正解数</span>
+                <span class="value" id="correct-count">0/5</span>
             </div>
-            <div class="player-slot" id="slot-2">
-                <div class="animal">🦊</div>
-                <div class="status-box">3人目</div>
-            </div>
-            <div class="player-slot" id="slot-3">
-                <div class="animal">🐿️</div>
-                <div class="status-box">4人目</div>
-            </div>
-            <div class="player-slot" id="slot-4">
-                <div class="animal">🦉</div>
-                <div class="status-box">5人目</div>
+            <div class="status-item">
+                <span class="label">残り時間</span>
+                <span class="value" id="time-left">90秒</span>
             </div>
         </div>
 
         <div class="question-area">
             <h2 id="question-text">Q. 環状線（山手線・大阪環状線）の駅の名前を答えよ！</h2>
             
-            <div class="fuse-container">
-                <div class="fuse-bar" id="fuse-bar"></div>
-                <div class="bomb-icon">💣</div>
+            <div class="time-bar-container">
+                <div class="time-bar" id="time-bar"></div>
+            </div>
+        </div>
+
+        <!-- 答えボード（みんなで埋める黒板） -->
+        <div class="answer-board">
+            <div class="answer-slot" id="slot-answer-0">
+                <span class="slot-icon">❓</span>
+                <span class="slot-answer"></span>
+            </div>
+            <div class="answer-slot" id="slot-answer-1">
+                <span class="slot-icon">❓</span>
+                <span class="slot-answer"></span>
+            </div>
+            <div class="answer-slot" id="slot-answer-2">
+                <span class="slot-icon">❓</span>
+                <span class="slot-answer"></span>
+            </div>
+            <div class="answer-slot" id="slot-answer-3">
+                <span class="slot-icon">❓</span>
+                <span class="slot-answer"></span>
+            </div>
+            <div class="answer-slot" id="slot-answer-4">
+                <span class="slot-icon">❓</span>
+                <span class="slot-answer"></span>
             </div>
         </div>
 
         <div class="input-area">
-            <div id="current-turn-label">📢 いまは 🐻 1人目 のターン！</div>
+            <div id="current-turn-label">� 書記さん、みんなの答えを入力してね！</div>
             <input type="text" id="answer-input" placeholder="こたえを入力してEnter！">
+            <div id="feedback" class="feedback"></div>
         </div>
     </main>
 

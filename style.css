@@ -288,4 +288,158 @@ body.forest-mode {
     color: #2b8a3e;
     font-weight: bold;
     line-height: 1.5;
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+/* --- チームステータス表示 --- */
+.team-status {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    background-color: #fff3e0;
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid #e8590c;
+}
+
+.status-item {
+    text-align: center;
+}
+
+.status-item .label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.status-item .value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #e8590c;
+}
+
+/* --- タイムバー --- */
+.time-bar-container {
+    display: flex;
+    align-items: center;
+    background-color: #e9ecef;
+    height: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.time-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #51cf66, #2b8a3e);
+    border-radius: 10px;
+    transition: width 1s linear;
+    width: 100%;
+}
+
+/* --- フィードバック表示 --- */
+.feedback {
+    min-height: 30px;
+    margin-top: 10px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.feedback.correct {
+    color: #51cf66;
+    animation: popIn 0.4s ease-out;
+}
+
+.feedback.wrong {
+    color: #ff6b6b;
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+/* --- 答えボード（黒板風） --- */
+.answer-board {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 40px 0;
+    flex-wrap: wrap;
+    background-color: #eaf8e6;
+    padding: 30px;
+    border-radius: 20px;
+    border: 3px dashed #51cf66;
+}
+
+.answer-slot {
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: 3px solid #ced4da;
+    border-radius: 15px;
+    position: relative;
+    cursor: default;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.answer-slot .slot-icon {
+    font-size: 3rem;
+    position: absolute;
+    transition: opacity 0.4s ease;
+}
+
+.answer-slot .slot-answer {
+    font-size: 1.8rem;
+    color: #5c4a3d;
+    opacity: 0;
+    text-align: center;
+    transition: opacity 0.4s ease;
+}
+
+.answer-slot.opened {
+    background-color: #fff3e0;
+    border-color: #ff9f1c;
+    box-shadow: 0 5px 15px rgba(255, 159, 28, 0.3);
+    animation: flipOpen 0.5s ease;
+}
+
+.answer-slot.opened .slot-icon {
+    opacity: 0;
+}
+
+.answer-slot.opened .slot-answer {
+    opacity: 1;
+}
+
+@keyframes flipOpen {
+    0% {
+        transform: scale(0.8) rotateX(90deg);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1) rotateX(0);
+        opacity: 1;
+    }
 }
