@@ -1,26 +1,55 @@
-// --- 1. 問題データ（複数問題対応） ---
-const quizzesData = [
-    {
-        question: "環状線（山手線・大阪環状線）の駅の名前を答えよ！",
-        validAnswers: ["東京", "有楽町", "新橋", "浜松町", "田町", "高輪ゲートウェイ", "品川", "大崎", "五反田", "目黒", "恵比寿", "渋谷", "原宿", "代々木", "新宿", "新大久保", "高田馬場", "目白", "池袋", "大塚", "巣鴨", "駒込", "田端", "西日暮里", "日暮里", "鶯谷", "上野", "御徒町", "秋葉原", "神田", "大阪", "天満", "桜ノ宮", "京橋", "大阪城公園", "森ノ宮", "玉造", "鶴橋", "桃谷", "寺田町", "天王寺", "新今宮", "今宮", "芦原橋", "大正", "弁天町", "西九条", "野田", "福島"]
-    },
-    {
-        question: "日本の都道府県の名前を答えよ！",
-        validAnswers: ["北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県", "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県", "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県", "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"]
-    }
-];
-
-// --- 2. ゲーム状態 ---
+// --- 1. 問題データ（questions.json を読み込む） ---
+let quizzesData = [];
 let currentQuestionIndex = 0;
-let correctCount = 0;           // 現在の問題での正解数
-let totalTimeLeft = 180;        // 全体時間
-let questionTimeLeft = 90;      // 各問題の時間
+let correctCount = 0;
+let questionTimeLeft = 90;
+let totalTimeLeft = 180;
 let timerId = null;
-let allCorrectAnswers = [];     // すべての正解を記録
-const targetCorrectPerQuestion = 5; // 1問あたりの目標正解数
-let answerSlotIndex = 0;        // 現在のスロットインデックス
+let allCorrectAnswers = [];
+const targetCorrectPerQuestion = 5;
+let answerSlotIndex = 0;
 
-// --- 3. HTML要素の取得 ---
+function normalizeQuiz(item) {
+    return {
+        id: item.id || 0,
+        author: item.author || '不明',
+        genre: item.genre || '未分類',
+        question: item.question || '',
+        validAnswers: Array.isArray(item.answers)
+            ? item.answers
+            : String(item.answers || '')
+                .split(',')
+                .map(answer => answer.trim())
+                .filter(Boolean)
+    };
+}
+
+async function loadQuizzesData() {
+    try {
+        const response = await fetch('questions.json');
+        if (!response.ok) {
+            throw new Error('questions.json を読み込めませんでした');
+        }
+        const data = await response.json();
+        quizzesData = Array.isArray(data) ? data.map(normalizeQuiz) : [];
+        if (quizzesData.length === 0) {
+            throw new Error('questions.json に問題がありません');
+        }
+    } catch (error) {
+        console.error(error);
+        quizzesData = [
+            {
+                id: 1,
+                author: 'サンプル',
+                genre: '地理',
+                question: '日本の都道府県をできるだけ答えよう',
+                validAnswers: ['北海道', '青森県', '岩手県', '宮城県']
+            }
+        ];
+    }
+}
+
+// --- 2. HTML要素の取得 ---
 const answerInput = document.getElementById('answer-input');
 const timeBar = document.getElementById('time-bar');
 const currentTurnLabel = document.getElementById('current-turn-label');
@@ -63,13 +92,15 @@ if (btnCertify) {
 
 // --- 4. ゲーム進行 ---
 function updateDisplay() {
-    // 問題番号と正解数を更新
+    const currentQuiz = quizzesData[currentQuestionIndex];
+    if (!currentQuiz) return;
+
     questionNumberDisplay.textContent = `${currentQuestionIndex + 1}/${quizzesData.length}`;
     correctCountDisplay.textContent = `${correctCount}/${targetCorrectPerQuestion}`;
     timeLeftDisplay.textContent = `${questionTimeLeft}秒`;
-    
-    // 現在の問題を表示
-    document.getElementById('question-text').textContent = quizzesData[currentQuestionIndex].question;
+
+    document.getElementById('question-text').textContent = `Q. ${currentQuiz.question}`;
+    document.getElementById('current-turn-label').textContent = `${currentQuiz.genre} / 作問者: ${currentQuiz.author}`;
 }
 
 function startTimer() {
@@ -93,32 +124,30 @@ function startTimer() {
 function moveToNextQuestion() {
     clearInterval(timerId);
     currentQuestionIndex++;
-    
-    // すべての問題が終了
+
     if (currentQuestionIndex >= quizzesData.length) {
         showResult();
-    } else {
-        // 次の問題へ
-        correctCount = 0;
-        answerSlotIndex = 0;  // スロットインデックスをリセット
-        questionTimeLeft = 90;
-        answerInput.value = '';
-        feedback.textContent = '';
-        
-        // スロットをリセット（❓に戻す）
-        for (let i = 0; i < 5; i++) {
-            const slotElement = document.getElementById(`slot-answer-${i}`);
-            if (slotElement) {
-                slotElement.classList.remove('opened');
-                slotElement.querySelector('.slot-icon').textContent = '❓';
-                slotElement.querySelector('.slot-answer').textContent = '';
-            }
-        }
-        
-        answerInput.focus();
-        updateDisplay();
-        startTimer();
+        return;
     }
+
+    correctCount = 0;
+    answerSlotIndex = 0;
+    questionTimeLeft = 90;
+    answerInput.value = '';
+    feedback.textContent = '';
+
+    for (let i = 0; i < 5; i++) {
+        const slotElement = document.getElementById(`slot-answer-${i}`);
+        if (slotElement) {
+            slotElement.classList.remove('opened');
+            slotElement.querySelector('.slot-icon').textContent = '❓';
+            slotElement.querySelector('.slot-answer').textContent = '';
+        }
+    }
+
+    answerInput.focus();
+    updateDisplay();
+    startTimer();
 }
 
 function handleCorrect(answer) {
@@ -127,8 +156,7 @@ function handleCorrect(answer) {
         question: currentQuestionIndex + 1,
         answer: answer
     });
-    
-    // スロットを開く（パッと表示）
+
     const slotElement = document.getElementById(`slot-answer-${answerSlotIndex}`);
     if (slotElement) {
         const slotIcon = slotElement.querySelector('.slot-icon');
@@ -138,19 +166,17 @@ function handleCorrect(answer) {
         slotElement.classList.add('opened');
     }
     answerSlotIndex++;
-    
-    // フィードバック表示
+
     feedback.textContent = '⭕ 正解！';
     feedback.classList.add('correct');
-    
+
     answerInput.value = '';
     updateDisplay();
-    
-    // 5個正解で次の問題へ
+
     if (correctCount >= targetCorrectPerQuestion) {
         setTimeout(() => {
             moveToNextQuestion();
-        }, 800); // 0.8秒後に次へ
+        }, 800);
     } else {
         answerInput.focus();
     }
@@ -197,24 +223,31 @@ answerInput.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         const val = answerInput.value.trim();
         const currentQuiz = quizzesData[currentQuestionIndex];
-        
-        // 正解判定
-        if (currentQuiz.validAnswers.includes(val)) {
-            // 重複チェック
-            const alreadyAnswered = allCorrectAnswers.some(
-                a => a.question === currentQuestionIndex + 1 && a.answer === val
-            );
-            if (alreadyAnswered) {
-                handleWrong();
-            } else {
-                handleCorrect(val);
-            }
+
+        if (!currentQuiz) return;
+
+        const hasAlreadyAnswered = allCorrectAnswers.some(
+            a => a.question === currentQuestionIndex + 1 && a.answer === val
+        );
+
+        if (hasAlreadyAnswered) {
+            handleWrong();
+            return;
+        }
+
+        const isCorrect = currentQuiz.validAnswers.includes(val);
+        if (isCorrect) {
+            handleCorrect(val);
         } else {
             handleWrong();
         }
     }
 });
 
-// ゲーム開始
-updateDisplay();
-startTimer();
+async function initGame() {
+    await loadQuizzesData();
+    updateDisplay();
+    startTimer();
+}
+
+initGame();

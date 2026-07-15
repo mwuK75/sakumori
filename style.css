@@ -243,6 +243,12 @@ body.forest-mode {
 /* 問題文とタイマー */
 .question-area { text-align: center; margin-bottom: 30px; }
 #question-text { font-size: 1.6rem; color: #5c4a3d; margin-bottom: 20px; }
+.quiz-meta {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #e8590c;
+    margin-bottom: 12px;
+}
 
 .fuse-container {
     display: flex;
