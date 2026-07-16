@@ -243,12 +243,6 @@ body.forest-mode {
 /* 問題文とタイマー */
 .question-area { text-align: center; margin-bottom: 30px; }
 #question-text { font-size: 1.6rem; color: #5c4a3d; margin-bottom: 20px; }
-.quiz-meta {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #e8590c;
-    margin-bottom: 12px;
-}
 
 .fuse-container {
     display: flex;
@@ -455,4 +449,81 @@ body.forest-mode {
         transform: scale(1) rotateX(0);
         opacity: 1;
     }
+}
+
+/* --- 評価パネル --- */
+.rating-panel {
+    margin: 20px 0 24px;
+    padding: 16px;
+    border: 2px dashed #7f5539;
+    border-radius: 12px;
+    background-color: #fdf3e7;
+}
+
+.rating-panel h3 {
+    margin: 0 0 8px;
+    color: #5c3d00;
+}
+
+.rating-panel p {
+    margin: 0 0 12px;
+    color: #6c4a22;
+}
+
+.rating-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.rating-btn {
+    border: 2px solid #d0a36f;
+    background-color: #fff;
+    color: #5c3d00;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.rating-btn:hover {
+    background-color: #fff4e6;
+}
+
+.rating-btn:disabled {
+    background-color: #ffe0b3;
+    border-color: #b97b2f;
+    cursor: default;
+}
+
+/* --- ランキング --- */
+.ranking-card {
+    margin: 40px auto 0;
+    max-width: 700px;
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    text-align: left;
+}
+
+.ranking-description {
+    color: #666;
+    margin-bottom: 16px;
+}
+
+.ranking-list {
+    padding-left: 20px;
+}
+
+.ranking-item {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background-color: #f7f8f2;
+}
+
+.ranking-item strong {
+    color: #2f4f2f;
 }

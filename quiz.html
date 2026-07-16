@@ -15,10 +15,8 @@
 
     <main class="game-board" id="game-board">
         <div class="info-bar">
-            <div class="creator-info">👤 投稿者: @さくもんマイスター</div>
+            
             <div class="action-buttons">
-                <button class="btn-eval" id="btn-like">❤️ いいね <span id="like-count">0</span></button>
-                <button class="btn-eval" id="btn-certify">👑 良問認定</button>
             </div>
         </div>
 
@@ -38,8 +36,9 @@
         </div>
 
         <div class="question-area">
-            <div id="quiz-meta" class="quiz-meta">ジャンル：未設定 / 作問者：未設定</div>
-            <h2 id="question-text">Q. 環状線（山手線・大阪環状線）の駅の名前を答えよ！</h2>
+            <p id="question-meta" class="question-meta">ジャンル: 読み込み中</p>
+            <h2 id="question-text">Q. 読み込み中...</h2>
+            <p id="question-author" class="question-author">作問者: 読み込み中</p>
             
             <div class="time-bar-container">
                 <div class="time-bar" id="time-bar"></div>
@@ -82,7 +81,19 @@
             <h1 id="result-title">結果</h1>
             <p id="result-message">メッセージ</p>
             <p id="result-answer" class="result-answer"></p>
-            <button class="btn-home" onclick="location.reload()">もう一度あそぶ</button>
+
+            <div class="rating-panel" id="rating-panel">
+                <h3 id="rating-title">この問題を評価してね</h3>
+                <p id="rating-message">作問者へのフィードバックとして、押してみよう！</p>
+                <div class="rating-buttons">
+                    <button type="button" class="rating-btn" data-key="fun" id="rating-btn-fun">❤️ 面白かった <span id="rating-fun-count">0</span></button>
+                    <button type="button" class="rating-btn" data-key="useful" id="rating-btn-useful">💡 勉強になった <span id="rating-useful-count">0</span></button>
+                    <button type="button" class="rating-btn" data-key="difficult" id="rating-btn-difficult">🔥 難しかった <span id="rating-difficult-count">0</span></button>
+                </div>
+            </div>
+
+            <button class="btn-home" id="btn-next-question" type="button">次の問題へ</button>
+            <button class="btn-home" id="btn-replay" type="button" style="display:none; margin-top: 10px;">もう一度あそぶ</button>
         </div>
     </div>
 

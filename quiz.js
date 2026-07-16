@@ -1,26 +1,22 @@
 // --- 1. 問題データ（questions.json を読み込む） ---
 let quizzesData = [];
-let currentQuestionIndex = 0;
-let correctCount = 0;
-let questionTimeLeft = 90;
-let totalTimeLeft = 180;
-let timerId = null;
-let allCorrectAnswers = [];
-const targetCorrectPerQuestion = 5;
-let answerSlotIndex = 0;
+const STORAGE_KEY = 'sakumon-ratings';
 
 function normalizeQuiz(item) {
+    const answers = Array.isArray(item.answers)
+        ? item.answers
+        : String(item.answers || '')
+            .split(',')
+            .map(answer => answer.trim())
+            .filter(Boolean);
+
     return {
         id: item.id || 0,
         author: item.author || '不明',
         genre: item.genre || '未分類',
         question: item.question || '',
-        validAnswers: Array.isArray(item.answers)
-            ? item.answers
-            : String(item.answers || '')
-                .split(',')
-                .map(answer => answer.trim())
-                .filter(Boolean)
+        validAnswers: answers,
+        ratings: item.ratings || { fun: 0, useful: 0, difficult: 0 }
     };
 }
 
@@ -28,12 +24,16 @@ async function loadQuizzesData() {
     try {
         const response = await fetch('questions.json');
         if (!response.ok) {
-            throw new Error('questions.json を読み込めませんでした');
+            throw new Error('questions.json が見つかりません');
         }
         const data = await response.json();
-        quizzesData = Array.isArray(data) ? data.map(normalizeQuiz) : [];
+        if (Array.isArray(data)) {
+            quizzesData = data.map(normalizeQuiz);
+        } else {
+            quizzesData = [];
+        }
         if (quizzesData.length === 0) {
-            throw new Error('questions.json に問題がありません');
+            throw new Error('問題データがありません');
         }
     } catch (error) {
         console.error(error);
@@ -49,7 +49,18 @@ async function loadQuizzesData() {
     }
 }
 
-// --- 2. HTML要素の取得 ---
+// --- 2. ゲーム状態 ---
+let currentQuestionIndex = 0;
+let activeQuiz = null;
+let correctCount = 0;           // 現在の問題での正解数
+let totalTimeLeft = 180;        // 全体時間
+let questionTimeLeft = 90;      // 各問題の時間
+let timerId = null;
+let allCorrectAnswers = [];     // すべての正解を記録
+const targetCorrectPerQuestion = 5; // 1問あたりの目標正解数
+let answerSlotIndex = 0;        // 現在のスロットインデックス
+
+// --- 3. HTML要素の取得 ---
 const answerInput = document.getElementById('answer-input');
 const timeBar = document.getElementById('time-bar');
 const currentTurnLabel = document.getElementById('current-turn-label');
@@ -61,6 +72,15 @@ const feedback = document.getElementById('feedback');
 const questionNumberDisplay = document.getElementById('question-number');
 const correctCountDisplay = document.getElementById('correct-count');
 const timeLeftDisplay = document.getElementById('time-left');
+const questionMetaDisplay = document.getElementById('question-meta');
+const questionAuthorDisplay = document.getElementById('question-author');
+const ratingButtons = document.querySelectorAll('.rating-btn');
+const ratingFunCount = document.getElementById('rating-fun-count');
+const ratingUsefulCount = document.getElementById('rating-useful-count');
+const ratingDifficultCount = document.getElementById('rating-difficult-count');
+const ratingPanel = document.getElementById('rating-panel');
+const btnNextQuestion = document.getElementById('btn-next-question');
+const btnReplay = document.getElementById('btn-replay');
 
 // 評価ボタン
 let likeCount = 0;
@@ -92,15 +112,20 @@ if (btnCertify) {
 
 // --- 4. ゲーム進行 ---
 function updateDisplay() {
-    const currentQuiz = quizzesData[currentQuestionIndex];
-    if (!currentQuiz) return;
+    if (!quizzesData.length) return;
 
+    const currentQuiz = quizzesData[currentQuestionIndex];
+    activeQuiz = currentQuiz;
+
+    // 問題番号と正解数を更新
     questionNumberDisplay.textContent = `${currentQuestionIndex + 1}/${quizzesData.length}`;
     correctCountDisplay.textContent = `${correctCount}/${targetCorrectPerQuestion}`;
     timeLeftDisplay.textContent = `${questionTimeLeft}秒`;
 
+    // 現在の問題を表示
     document.getElementById('question-text').textContent = `Q. ${currentQuiz.question}`;
-    document.getElementById('current-turn-label').textContent = `${currentQuiz.genre} / 作問者: ${currentQuiz.author}`;
+    questionMetaDisplay.textContent = `ジャンル: ${currentQuiz.genre}`;
+    questionAuthorDisplay.textContent = `作問者: ${currentQuiz.author}`;
 }
 
 function startTimer() {
@@ -121,33 +146,88 @@ function startTimer() {
     }, 1000);
 }
 
+function resetRatingButtons() {
+    ratingButtons.forEach(button => {
+        button.disabled = false;
+        button.classList.remove('pressed');
+    });
+}
+
+function showQuestionRatingScreen() {
+    clearInterval(timerId);
+    resultScreen.style.display = 'flex';
+    resultTitle.textContent = 'この問題を評価しよう';
+    resultMessage.textContent = `${activeQuiz?.question || ''}`;
+    resultAnswer.style.display = 'none';
+
+    if (ratingPanel) {
+        ratingPanel.style.display = 'block';
+    }
+    if (btnNextQuestion) {
+        btnNextQuestion.style.display = 'inline-block';
+    }
+
+    resetRatingButtons();
+    updateRatingDisplay();
+}
+
+function showResult() {
+    resultScreen.style.display = 'flex';
+    resultTitle.textContent = '🎉 ゲーム終了！ 🎉';
+
+    const totalCorrect = allCorrectAnswers.length;
+    const maxCorrect = targetCorrectPerQuestion * quizzesData.length;
+    resultMessage.textContent = `合計 ${totalCorrect}/${maxCorrect} 個の正解をゲットしました！`;
+
+    if (resultAnswer) {
+        resultAnswer.style.display = 'block';
+        let answerText = '🎯 正解した答え：\n';
+        for (let i = 0; i < quizzesData.length; i++) {
+            const questionAnswers = allCorrectAnswers.filter(a => a.question === i + 1);
+            const answersStr = questionAnswers.map(a => a.answer).join('、');
+            answerText += `問題${i + 1}: ${answersStr}\n`;
+        }
+        resultAnswer.textContent = answerText;
+    }
+
+    if (ratingPanel) {
+        ratingPanel.style.display = 'none';
+    }
+    if (btnNextQuestion) {
+        btnNextQuestion.style.display = 'none';
+    }
+    if (btnReplay) {
+        btnReplay.style.display = 'inline-block';
+    }
+}
+
 function moveToNextQuestion() {
     clearInterval(timerId);
     currentQuestionIndex++;
 
     if (currentQuestionIndex >= quizzesData.length) {
         showResult();
-        return;
-    }
+    } else {
+        correctCount = 0;
+        answerSlotIndex = 0;
+        questionTimeLeft = 90;
+        answerInput.value = '';
+        feedback.textContent = '';
 
-    correctCount = 0;
-    answerSlotIndex = 0;
-    questionTimeLeft = 90;
-    answerInput.value = '';
-    feedback.textContent = '';
-
-    for (let i = 0; i < 5; i++) {
-        const slotElement = document.getElementById(`slot-answer-${i}`);
-        if (slotElement) {
-            slotElement.classList.remove('opened');
-            slotElement.querySelector('.slot-icon').textContent = '❓';
-            slotElement.querySelector('.slot-answer').textContent = '';
+        for (let i = 0; i < 5; i++) {
+            const slotElement = document.getElementById(`slot-answer-${i}`);
+            if (slotElement) {
+                slotElement.classList.remove('opened');
+                slotElement.querySelector('.slot-icon').textContent = '❓';
+                slotElement.querySelector('.slot-answer').textContent = '';
+            }
         }
-    }
 
-    answerInput.focus();
-    updateDisplay();
-    startTimer();
+        resultScreen.style.display = 'none';
+        answerInput.focus();
+        updateDisplay();
+        startTimer();
+    }
 }
 
 function handleCorrect(answer) {
@@ -156,7 +236,8 @@ function handleCorrect(answer) {
         question: currentQuestionIndex + 1,
         answer: answer
     });
-
+    
+    // スロットを開く（パッと表示）
     const slotElement = document.getElementById(`slot-answer-${answerSlotIndex}`);
     if (slotElement) {
         const slotIcon = slotElement.querySelector('.slot-icon');
@@ -166,16 +247,18 @@ function handleCorrect(answer) {
         slotElement.classList.add('opened');
     }
     answerSlotIndex++;
-
+    
+    // フィードバック表示
     feedback.textContent = '⭕ 正解！';
     feedback.classList.add('correct');
-
+    
     answerInput.value = '';
     updateDisplay();
-
+    
+    // 5個正解で次の問題へ
     if (correctCount >= targetCorrectPerQuestion) {
         setTimeout(() => {
-            moveToNextQuestion();
+            showQuestionRatingScreen();
         }, 800);
     } else {
         answerInput.focus();
@@ -198,24 +281,61 @@ function handleWrong() {
     }, 1000);
 }
 
-function showResult() {
-    resultScreen.style.display = 'flex';
-    resultTitle.textContent = "🎉 ゲーム終了！ 🎉";
-    
-    const totalCorrect = allCorrectAnswers.length;
-    const maxCorrect = targetCorrectPerQuestion * quizzesData.length;
-    resultMessage.textContent = `合計 ${totalCorrect}/${maxCorrect} 個の正解をゲットしました！`;
-    
-    // 全正解を表示
-    if (resultAnswer) {
-        let answerText = "🎯 正解した答え：\n";
-        for (let i = 0; i < quizzesData.length; i++) {
-            const questionAnswers = allCorrectAnswers.filter(a => a.question === i + 1);
-            const answersStr = questionAnswers.map(a => a.answer).join('、');
-            answerText += `問題${i + 1}: ${answersStr}\n`;
-        }
-        resultAnswer.textContent = answerText;
+function saveRatingsToStorage() {
+    if (!activeQuiz) return;
+
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const existingIndex = stored.findIndex(item => Number(item.id) === Number(activeQuiz.id));
+
+    const newItem = {
+        id: activeQuiz.id,
+        ratings: activeQuiz.ratings || { fun: 0, useful: 0, difficult: 0 }
+    };
+
+    if (existingIndex >= 0) {
+        stored[existingIndex] = newItem;
+    } else {
+        stored.push(newItem);
     }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+}
+
+function updateRatingDisplay() {
+    if (!activeQuiz) return;
+
+    if (ratingFunCount) ratingFunCount.textContent = activeQuiz.ratings?.fun || 0;
+    if (ratingUsefulCount) ratingUsefulCount.textContent = activeQuiz.ratings?.useful || 0;
+    if (ratingDifficultCount) ratingDifficultCount.textContent = activeQuiz.ratings?.difficult || 0;
+}
+
+ratingButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        if (!activeQuiz) return;
+
+        const key = this.dataset.key;
+        if (!key) return;
+
+        activeQuiz.ratings = activeQuiz.ratings || { fun: 0, useful: 0, difficult: 0 };
+        activeQuiz.ratings[key] = (activeQuiz.ratings[key] || 0) + 1;
+
+        this.disabled = true;
+        this.classList.add('pressed');
+        updateRatingDisplay();
+        saveRatingsToStorage();
+    });
+});
+
+if (btnNextQuestion) {
+    btnNextQuestion.addEventListener('click', function() {
+        moveToNextQuestion();
+    });
+}
+
+if (btnReplay) {
+    btnReplay.addEventListener('click', function() {
+        location.reload();
+    });
 }
 
 // --- 5. 入力イベント ---
@@ -226,17 +346,15 @@ answerInput.addEventListener('keypress', function(e) {
 
         if (!currentQuiz) return;
 
-        const hasAlreadyAnswered = allCorrectAnswers.some(
+        const normalizedInput = val.replace(/\s+/g, '');
+        const normalizedAnswers = currentQuiz.validAnswers.map(answer => answer.replace(/\s+/g, ''));
+
+        const isCorrect = normalizedAnswers.includes(normalizedInput);
+        const alreadyAnswered = allCorrectAnswers.some(
             a => a.question === currentQuestionIndex + 1 && a.answer === val
         );
 
-        if (hasAlreadyAnswered) {
-            handleWrong();
-            return;
-        }
-
-        const isCorrect = currentQuiz.validAnswers.includes(val);
-        if (isCorrect) {
+        if (isCorrect && !alreadyAnswered) {
             handleCorrect(val);
         } else {
             handleWrong();
@@ -244,6 +362,7 @@ answerInput.addEventListener('keypress', function(e) {
     }
 });
 
+// ゲーム開始
 async function initGame() {
     await loadQuizzesData();
     updateDisplay();
