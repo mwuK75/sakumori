@@ -3,12 +3,30 @@ let quizzesData = [];
 const STORAGE_KEY = 'sakumon-ratings';
 
 function normalizeQuiz(item) {
-    const answers = Array.isArray(item.answers)
-        ? item.answers
-        : String(item.answers || '')
-            .split(',')
-            .map(answer => answer.trim())
-            .filter(Boolean);
+
+let answers = [];
+
+if (Array.isArray(item.answers)) {
+
+    for (const answer of item.answers) {
+        answers.push(answer);
+    }
+
+} else {
+
+    const answerList =
+        String(item.answers || '').split(',');
+
+    for (const answer of answerList) {
+
+        const trimmed = answer.trim();
+
+        if (trimmed !== '') {
+            answers.push(trimmed);
+        }
+    }
+}
+
 
     return {
         id: item.id || 0,
@@ -27,11 +45,29 @@ async function loadQuizzesData() {
             throw new Error('questions.json が見つかりません');
         }
         const data = await response.json();
-        if (Array.isArray(data)) {
-            quizzesData = data.map(normalizeQuiz);
-        } else {
-            quizzesData = [];
+    if (Array.isArray(data)) {
+
+    quizzesData = [];
+
+    for (const item of data) {
+        quizzesData.push(
+            normalizeQuiz(item)
+        );
+    }
+
+    const storedRatings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if (Array.isArray(storedRatings)) {
+        for (const stored of storedRatings) {
+            const matchedQuiz = quizzesData.find(q => Number(q.id) === Number(stored.id));
+            if (matchedQuiz && stored.ratings) {
+                matchedQuiz.ratings = stored.ratings;
+            }
         }
+    }
+
+} else {
+    quizzesData = [];
+}
         if (quizzesData.length === 0) {
             throw new Error('問題データがありません');
         }
@@ -147,24 +183,33 @@ function startTimer() {
 }
 
 function resetRatingButtons() {
-    ratingButtons.forEach(button => {
+    for (const button of ratingButtons) {
         button.disabled = false;
         button.classList.remove('pressed');
-    });
+    }
 }
 
 function showQuestionRatingScreen() {
     clearInterval(timerId);
     resultScreen.style.display = 'flex';
     resultTitle.textContent = 'この問題を評価しよう';
-    resultMessage.textContent = `${activeQuiz?.question || ''}`;
-    resultAnswer.style.display = 'none';
+    if (activeQuiz) {
+        resultMessage.textContent = activeQuiz.question;
+    } else {
+        resultMessage.textContent = '';
+    }
+    if (resultAnswer) {
+        resultAnswer.style.display = 'none';
+    }
 
     if (ratingPanel) {
         ratingPanel.style.display = 'block';
     }
     if (btnNextQuestion) {
         btnNextQuestion.style.display = 'inline-block';
+    }
+    if (btnReplay) {
+        btnReplay.style.display = 'none';
     }
 
     resetRatingButtons();
@@ -183,8 +228,19 @@ function showResult() {
         resultAnswer.style.display = 'block';
         let answerText = '🎯 正解した答え：\n';
         for (let i = 0; i < quizzesData.length; i++) {
-            const questionAnswers = allCorrectAnswers.filter(a => a.question === i + 1);
-            const answersStr = questionAnswers.map(a => a.answer).join('、');
+            let answersStr = '';
+
+for (const answerData of allCorrectAnswers) {
+
+    if (answerData.question === i + 1) {
+
+        if (answersStr !== '') {
+            answersStr += '、';
+        }
+
+        answersStr += answerData.answer;
+    }
+}
             answerText += `問題${i + 1}: ${answersStr}\n`;
         }
         resultAnswer.textContent = answerText;
@@ -250,6 +306,7 @@ function handleCorrect(answer) {
     
     // フィードバック表示
     feedback.textContent = '⭕ 正解！';
+    feedback.classList.remove('wrong');
     feedback.classList.add('correct');
     
     answerInput.value = '';
@@ -257,7 +314,7 @@ function handleCorrect(answer) {
     
     // 5個正解で次の問題へ
     if (correctCount >= targetCorrectPerQuestion) {
-        setTimeout(() => {
+        setTimeout(function() {
             showQuestionRatingScreen();
         }, 800);
     } else {
@@ -275,17 +332,23 @@ function handleWrong() {
     answerInput.focus();
     
     // 1秒後にフィードバッククリア
-    setTimeout(() => {
-        feedback.textContent = '';
-        feedback.classList.remove('wrong');
-    }, 1000);
+ setTimeout(function() {
+    feedback.textContent = '';
+    feedback.classList.remove('wrong');
+}, 1000);
 }
 
 function saveRatingsToStorage() {
     if (!activeQuiz) return;
 
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const existingIndex = stored.findIndex(item => Number(item.id) === Number(activeQuiz.id));
+    let existingIndex = -1;
+
+for (let i = 0; i < stored.length; i++) {
+    if (Number(stored[i].id) === Number(activeQuiz.id)) {
+        existingIndex = i;
+    }
+}
 
     const newItem = {
         id: activeQuiz.id,
@@ -300,31 +363,46 @@ function saveRatingsToStorage() {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
 }
-
 function updateRatingDisplay() {
     if (!activeQuiz) return;
 
-    if (ratingFunCount) ratingFunCount.textContent = activeQuiz.ratings?.fun || 0;
-    if (ratingUsefulCount) ratingUsefulCount.textContent = activeQuiz.ratings?.useful || 0;
-    if (ratingDifficultCount) ratingDifficultCount.textContent = activeQuiz.ratings?.difficult || 0;
+    ratingFunCount.textContent = activeQuiz.ratings?.fun || 0;
+    ratingUsefulCount.textContent = activeQuiz.ratings?.useful || 0;
+    ratingDifficultCount.textContent = activeQuiz.ratings?.difficult || 0;
 }
 
-ratingButtons.forEach(button => {
+for (const button of ratingButtons) {
     button.addEventListener('click', function() {
         if (!activeQuiz) return;
 
-        const key = this.dataset.key;
+        let key = '';
+        if (this.id === 'rating-btn-fun') {
+            key = 'fun';
+        }
+        if (this.id === 'rating-btn-useful') {
+            key = 'useful';
+        }
+        if (this.id === 'rating-btn-difficult') {
+            key = 'difficult';
+        }
         if (!key) return;
 
-        activeQuiz.ratings = activeQuiz.ratings || { fun: 0, useful: 0, difficult: 0 };
-        activeQuiz.ratings[key] = (activeQuiz.ratings[key] || 0) + 1;
+        if (!activeQuiz.ratings) {
+            activeQuiz.ratings = {
+                fun: 0,
+                useful: 0,
+                difficult: 0
+            };
+        }
 
+        activeQuiz.ratings[key] = (activeQuiz.ratings[key] || 0) + 1;
         this.disabled = true;
         this.classList.add('pressed');
+
         updateRatingDisplay();
         saveRatingsToStorage();
     });
-});
+}
 
 if (btnNextQuestion) {
     btnNextQuestion.addEventListener('click', function() {
@@ -347,12 +425,31 @@ answerInput.addEventListener('keypress', function(e) {
         if (!currentQuiz) return;
 
         const normalizedInput = val.replace(/\s+/g, '');
-        const normalizedAnswers = currentQuiz.validAnswers.map(answer => answer.replace(/\s+/g, ''));
+      const normalizedAnswers = [];
 
-        const isCorrect = normalizedAnswers.includes(normalizedInput);
-        const alreadyAnswered = allCorrectAnswers.some(
-            a => a.question === currentQuestionIndex + 1 && a.answer === val
-        );
+for (const answer of currentQuiz.validAnswers) {
+    normalizedAnswers.push(
+        answer.replace(/\s+/g, '')
+    );
+}
+
+let isCorrect = false;
+
+for (const answer of normalizedAnswers) {
+    if (answer === normalizedInput) {
+        isCorrect = true;
+    }
+}
+    let alreadyAnswered = false;
+
+for (const answerData of allCorrectAnswers) {
+    if (
+        answerData.question === currentQuestionIndex + 1 &&
+        answerData.answer === val
+    ) {
+        alreadyAnswered = true;
+    }
+}        
 
         if (isCorrect && !alreadyAnswered) {
             handleCorrect(val);
