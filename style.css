@@ -1,63 +1,106 @@
-/* 全体の背景やフォントの設定（css-propertiesの知識） */
+/* 全体の背景やフォントの設定 */
 body {
-    background-color: #f0f8ff; /* 薄い青色の背景 */
-    font-family: sans-serif;
+    background-color: #f4faeb;
+    color: #5c4a3d;
+    font-family: 'Hiragino Maru Gothic ProN', 'Rounded M+ 1c', 'メイリオ', sans-serif;
     margin: 0;
     padding: 0;
 }
 
-/* 画面の中央にコンテンツを寄せる（css-layout, css-boxmodelの知識） */
+body.forest-mode {
+    background-image: radial-gradient(#e0f2cb 20%, transparent 20%);
+    background-size: 20px 20px;
+}
+
 .container {
     text-align: center;
-    padding-top: 100px;
+    padding: 120px 20px 40px;
+}
+
+.home-container {
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 h1 {
     font-size: 3rem;
-    color: #333;
+    color: #2f5d3b;
     margin-bottom: 10px;
 }
 
 .subtitle {
-    color: #666;
-    margin-bottom: 50px;
+    color: #5c4a3d;
+    margin-bottom: 30px;
+    font-size: 1.05rem;
 }
 
-/* ボタンを並べるエリア */
+.hero-card {
+    background-color: #fffaf0;
+    border: 3px solid #d4a373;
+    border-radius: 24px;
+    padding: 30px 24px 36px;
+    box-shadow: 0 5px 0 #d4a373;
+    margin-bottom: 24px;
+}
+
+.site-logo {
+    object-fit: cover;
+}
+
 .menu-box {
     display: flex;
     justify-content: center;
-    gap: 30px; /* ボタン同士の間隔 */
+    gap: 24px;
+    flex-wrap: wrap;
 }
 
-
-
-/* ボタンの基本デザイン（css-boxmodel, css-propertiesの知識） */
 .btn {
     display: inline-block;
-    width: 200px;
-    padding: 20px;
-    font-size: 1.2rem;
+    min-width: 220px;
+    padding: 16px 20px;
+    font-size: 1.1rem;
     font-weight: bold;
-    text-decoration: none; /* リンクの下線を消す */
-    color: white;
-    border-radius: 10px; /* 角を丸くする */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影をつける */
+    text-decoration: none;
+    color: #fff;
+    border-radius: 999px;
+    box-shadow: 0 4px 0 #5c4a3d;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-/* 登録ボタンの色（緑系） */
-.btn-register {
-    background-color: #2ec4b6;
-}
-
-/* 解くボタンの色（オレンジ系） */
-.btn-play {
-    background-color: #ff9f1c;
-}
-
-/* マウスが乗ったときの動き（css-pseudoの知識） */
 .btn:hover {
-    opacity: 0.8;
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-register {
+    background-color: #5abf73;
+}
+
+.btn-play {
+    background-color: #e8590c;
+}
+
+.ranking-card {
+    background-color: #fff;
+    border: 2px solid #d4a373;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(92, 74, 61, 0.08);
+}
+
+.ranking-card h2 {
+    margin-top: 0;
+    color: #2f5d3b;
+}
+
+.ranking-description {
+    color: #6b5b4d;
+    margin-bottom: 16px;
+}
+
+.ranking-list {
+    text-align: left;
+    padding-left: 20px;
 }
 
 /* --- ここから register.html 用のデザイン --- */

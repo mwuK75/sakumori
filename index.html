@@ -5,18 +5,22 @@
     <title>作問の森 - ホーム画面</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="forest-mode">
+    <header class="forest-header">
+        <h1>🌳 作問の森</h1>
+        <div class="header-spacer"></div>
+    </header>
 
-    <div class="container">
-        <h1>作問の森</h1>
-        <p class="subtitle">みんなが作った問題を集めてクイズ大会をしよう！</p>
+    <div class="container home-container">
+        <div class="hero-card">
+             <img src="picture/logo.png" alt="作問の森ロゴ" class="site-logo">
+            <p class="subtitle">みんなが作った問題を集めてクイズ大会をしよう！</p>
 
-        <div class="menu-box">
-            <a href="register.html" class="btn btn-register">クイズを登録する(準備中)
-            </a>
-            <a href="quiz.html" class="btn btn-play">クイズを解く</a>
-        </div>
-        <section class="ranking-card">
+            <div class="menu-box">
+                <a href="register.html" class="btn btn-register">クイズを登録する(準備中)</a>
+                <a href="quiz.html" class="btn btn-play">クイズを解く</a>
+            </div>
+        </div>        <section class="ranking-card">
             <h2>🏆 人気問題ランキング</h2>
             <p class="ranking-description">面白かった・勉強になった・難しかったの合計で並べています。</p>
             <ol id="ranking-list" class="ranking-list"></ol>
