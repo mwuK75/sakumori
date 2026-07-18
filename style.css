@@ -425,9 +425,9 @@ body.forest-mode {
     justify-content: center;
     margin: 36px 0;
     flex-wrap: wrap;
-    /* 回答部分は画像の木目（kokuban.png）を使用 */
+    /* 回答部分は画像の木目を使用 */
     background-color: #5a371f;
-    background-image: url('kokuban.png');
+    background-image: url('picture/kokuban.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

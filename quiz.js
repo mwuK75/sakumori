@@ -78,9 +78,9 @@ async function loadQuizzesData() {
             {
                 id: 1,
                 author: 'サンプル',
-                genre: '地理',
-                question: '日本の都道府県をできるだけ答えよう',
-                validAnswers: ['北海道', '青森県', '岩手県', '宮城県']
+                genre: 'サンプル',
+                question: 'サンプル問題',
+                validAnswers: ['A', 'B', 'C']
             }
         ];
     }
