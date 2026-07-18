@@ -40,7 +40,7 @@ if (Array.isArray(item.answers)) {
 
 async function loadQuizzesData() {
     try {
-        const response = await fetch('questions.json');
+        const response = await fetch('https://script.google.com/macros/s/AKfycbztQoWbf96IXurDhfTeLqDA3eMbsUu7zEQwQKNjQvZzq9k8hdp4LoopCPsMuW3-z1uuFA/exec');
         if (!response.ok) {
             throw new Error('questions.json が見つかりません');
         }
@@ -53,6 +53,7 @@ async function loadQuizzesData() {
         quizzesData.push(
             normalizeQuiz(item)
         );
+        console.log(quizzesData);
     }
 
     const storedRatings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
