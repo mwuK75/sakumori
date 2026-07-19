@@ -2,6 +2,15 @@
 let quizzesData = [];
 const STORAGE_KEY = 'sakumon-ratings';
 
+const selectedGenres =
+    JSON.parse(
+        localStorage.getItem('selectedGenres')
+    ) || [];
+console.log(
+    'selectedGenres =',
+    selectedGenres
+);
+
 function normalizeQuiz(item) {
 
 let answers = [];
@@ -43,9 +52,10 @@ function shuffleArray(array) {
 
     for (let i = shuffled.length - 1; i > 0; i--) {
 
-        const j = Math.floor(
-            Math.random() * (i + 1)
-        );
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
 
         [shuffled[i], shuffled[j]] =
             [shuffled[j], shuffled[i]];
@@ -53,61 +63,132 @@ function shuffleArray(array) {
 
     return shuffled;
 }
+console.log(
+    quizzesData.map(
+        q => q.genre
+    )
+);
 async function loadQuizzesData() {
+
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbztQoWbf96IXurDhfTeLqDA3eMbsUu7zEQwQKNjQvZzq9k8hdp4LoopCPsMuW3-z1uuFA/exec');
+
+        const response = await fetch(
+            'https://script.google.com/macros/s/AKfycbztQoWbf96IXurDhfTeLqDA3eMbsUu7zEQwQKNjQvZzq9k8hdp4LoopCPsMuW3-z1uuFA/exec'
+        );
+
         if (!response.ok) {
-            throw new Error('questions.json が見つかりません');
+            throw new Error('問題データを取得できません');
         }
+
         const data = await response.json();
-    if (Array.isArray(data)) {
 
-    quizzesData = [];
+        if (Array.isArray(data)) {
 
-    for (const item of data) {
-        quizzesData.push(
-            normalizeQuiz(item)
-        );
-        console.log(quizzesData);
-    }
-    if (Array.isArray(data)) {
+            quizzesData = [];
 
-    quizzesData = [];
+            for (const item of data) {
 
-    for (const item of data) {
-        quizzesData.push(
-            normalizeQuiz(item)
-        );
-    }
+                quizzesData.push(
+                    normalizeQuiz(item)
+                );
 
-    // シャッフル
-    quizzesData = shuffleArray(quizzesData);
-
-    // 5問だけ抽出
-    quizzesData = quizzesData.slice(0, 5);
-
-}
-
-
-
-    const storedRatings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    if (Array.isArray(storedRatings)) {
-        for (const stored of storedRatings) {
-            const matchedQuiz = quizzesData.find(q => Number(q.id) === Number(stored.id));
-            if (matchedQuiz && stored.ratings) {
-                matchedQuiz.ratings = stored.ratings;
             }
-        }
-    }
 
-} else {
-    quizzesData = [];
+            console.log(
+                '全ジャンル',
+                quizzesData.map(q => q.genre)
+            );
+
+            if (selectedGenres.length > 0) {
+
+                quizzesData =
+                    quizzesData.filter(
+                        quiz =>
+                            selectedGenres.includes(
+                                quiz.genre.trim()
+                            )
+                    );
+
+            }
+
+            console.log(
+    '絞り込み後',
+    quizzesData.map(q => q.genre)
+);
+
+if (quizzesData.length === 0) {
+
+    alert(
+        '選択したジャンルの問題がありません。'
+    );
+
+    location.href = 'index.html';
+
+    return;
 }
-        if (quizzesData.length === 0) {
-            throw new Error('問題データがありません');
+
+if (quizzesData.length < 5) {
+
+    alert(
+        `選択したジャンルの問題数は ${quizzesData.length} 問です。`
+    );
+
+}
+
+quizzesData =
+    shuffleArray(quizzesData);
+
+quizzesData =
+    quizzesData.slice(0, 5);
+
+            const storedRatings =
+                JSON.parse(
+                    localStorage.getItem(
+                        STORAGE_KEY
+                    ) || '[]'
+                );
+
+            if (Array.isArray(storedRatings)) {
+
+                for (const stored of storedRatings) {
+
+                    const matchedQuiz =
+                        quizzesData.find(
+                            q =>
+                                Number(q.id) ===
+                                Number(stored.id)
+                        );
+
+                    if (
+                        matchedQuiz &&
+                        stored.ratings
+                    ) {
+
+                        matchedQuiz.ratings =
+                            stored.ratings;
+
+                    }
+                }
+            }
+
+        } else {
+
+            quizzesData = [];
+
         }
+
+        if (quizzesData.length === 0) {
+
+            throw new Error(
+                '問題データがありません'
+            );
+
+        }
+
     } catch (error) {
+
         console.error(error);
+
         quizzesData = [
             {
                 id: 1,
@@ -117,7 +198,9 @@ async function loadQuizzesData() {
                 validAnswers: ['A', 'B', 'C']
             }
         ];
+
     }
+
 }
 
 // --- 2. ゲーム状態 ---
@@ -153,33 +236,6 @@ const ratingPanel = document.getElementById('rating-panel');
 const btnNextQuestion = document.getElementById('btn-next-question');
 const btnReplay = document.getElementById('btn-replay');
 
-// 評価ボタン
-let likeCount = 0;
-let liked = false;
-let certified = false;
-const btnLike = document.getElementById('btn-like');
-const btnCertify = document.getElementById('btn-certify');
-
-if (btnLike) {
-    btnLike.addEventListener('click', function() {
-        if (liked) return;
-        liked = true;
-        likeCount++;
-        document.getElementById('like-count').textContent = likeCount;
-        this.classList.add('pressed');
-        this.disabled = true;
-    });
-}
-
-if (btnCertify) {
-    btnCertify.addEventListener('click', function() {
-        if (certified) return;
-        certified = true;
-        this.classList.add('pressed');
-        this.textContent = '👑 良問認定済み';
-        this.disabled = true;
-    });
-}
 
 // --- 4. ゲーム進行 ---
 function updateDisplay() {
@@ -500,5 +556,6 @@ async function initGame() {
     updateDisplay();
     startTimer();
 }
+console.log(selectedGenres);
 
 initGame();

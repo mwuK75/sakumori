@@ -17,7 +17,51 @@
             <p class="subtitle">みんなが作った問題を集めてクイズ大会をしよう！</p>
 
             <div class="menu-box">
-                <a href="quiz.html" class="btn btn-play">クイズを解く</a>
+                <button id="open-start-modal" class="btn btn-play">クイズを解く</button>
+                <div id="start-modal" class="start-modal">
+
+    <div class="start-modal-content">
+
+        <h2>🌳 クイズの準備</h2>
+
+        <p>あなたの名前（班名でもOK）</p>
+
+        <input
+            type="text"
+            id="player-name"
+            placeholder="名前を入力">
+
+        <h3>出題ジャンル</h3>
+
+        <div class="genre-list">
+
+            <label><input type="checkbox" value="国語">国語</label>
+
+            <label><input type="checkbox" value="算数">算数</label>
+
+            <label><input type="checkbox" value="英語">英語</label>
+
+            <label><input type="checkbox" value="理科">理科</label>
+
+            <label><input type="checkbox" value="地理">地理</label>
+
+            <label><input type="checkbox" value="歴史">歴史</label>
+
+            <label><input type="checkbox" value="その他">その他</label>
+
+        </div>
+
+        <button
+            id="start-quiz-btn"
+            class="btn btn-play">
+
+            スタート
+
+        </button>
+
+    </div>
+
+</div>
             </div>
         </div>        <section class="ranking-card">
             <h2>🏆 人気問題ランキング</h2>

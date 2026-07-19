@@ -52,5 +52,77 @@ async function loadQuestionsForRanking() {
         console.error(error);
     }
 }
+const openBtn =
+    document.getElementById(
+        'open-start-modal'
+    );
+
+const modal =
+    document.getElementById(
+        'start-modal'
+    );
+
+const startBtn =
+    document.getElementById(
+        'start-quiz-btn'
+    );
+
+if (openBtn) {
+
+    openBtn.addEventListener(
+        'click',
+        () => {
+
+            modal.style.display =
+                'flex';
+
+        }
+    );
+
+}
+
+if (startBtn) {
+
+    startBtn.addEventListener(
+        'click',
+        () => {
+
+            const playerName =
+                document.getElementById(
+                    'player-name'
+                ).value;
+
+            localStorage.setItem(
+                'playerName',
+                playerName
+            );
+
+            const checked =
+                document.querySelectorAll(
+                    '.genre-list input:checked'
+                );
+
+            const genres = [];
+
+            checked.forEach(item => {
+
+                genres.push(item.value);
+
+            });
+
+            console.log(genres);
+
+            localStorage.setItem(
+                'selectedGenres',
+                JSON.stringify(genres)
+            );
+
+            location.href =
+                'quiz.html';
+
+        }
+    );
+
+}
 
 loadQuestionsForRanking();
