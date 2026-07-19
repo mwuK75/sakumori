@@ -570,3 +570,36 @@ body.forest-mode {
 .ranking-item strong {
     color: #2f4f2f;
 }
+.guide-card {
+    background: #ffffff;
+    padding: 24px;
+    margin: 20px 0;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+.guide-card h2 {
+    color: #2e6b3d;
+    margin-bottom: 12px;
+}
+
+.guide-card pre {
+    background: #f4f4f4;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.guide-card ul,
+.guide-card ol {
+    margin-left: 24px;
+}
+.guide-image {
+    width: 100%;
+    max-width: 800px;
+    display: block;
+    margin: 16px auto;
+    border-radius: 12px;
+    border: 2px solid #d5d5d5;
+}

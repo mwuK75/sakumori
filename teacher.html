@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>作問の森 - システム導入ガイド</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="forest-mode">
+
+    <header class="forest-header">
+        <a href="index.html" class="btn-home">🏠 ホームへ戻る</a>
+        <h1>🌳 作問の森 - システム導入ガイド</h1>
+        <div class="header-spacer"></div>
+    </header>
+
+    <div class="container home-container">
+
+        <section class="guide-card">
+            <h2>はじめに</h2>
+
+<p>
+    本ページでは、「作問の森」を他校や別環境で運用するための導入手順を説明します。
+    本システムはGoogleフォーム、GoogleスプレッドシートおよびGoogle Apps Scriptを利用して
+    問題データを管理しています。
+</p>
+
+<p>
+    システムの導入にはGoogleフォームやGoogle Apps Scriptの設定が必要となるため、
+    一般の利用者ではなく、開発者やICT担当教員、またはITに関する知識を持つ方による設定を想定しています。
+</p>
+
+
+        </section>
+
+        <section class="guide-card">
+            <h2>① Googleフォームを作成する</h2>
+
+            <p>Googleフォームで以下の項目を作成してください。</p>
+
+            <ul>
+                <li>あなたの名前は？</li>
+                <li>問題のジャンルは？</li>
+                <li>登場させたい問題を記入してください。</li>
+                <li>質問の回答を記入してください。</li>
+            </ul>
+
+            <p>
+                「質問の回答を記入してください。」は
+                <strong>段落形式</strong>にしてください。
+            </p>
+
+            <p>入力例：</p>
+
+            <pre>
+イヌ
+ネコ
+ウマ
+ウシ
+ゾウ
+            </pre>
+            <img src="picture/guide1-1.png" alt="Googleフォームの入力例" class="guide-image">
+            <img src="picture/guide1-2.png" alt="Googleフォームの入力例" class="guide-image">
+        </section>
+        </section>
+
+        <section class="guide-card">
+            <h2>② 回答をスプレッドシートへ保存する</h2>
+
+            <p>
+                Googleフォームの「回答」タブを開き、
+                「スプレッドシートにリンク」を選択してください。
+            </p>
+
+            <p>
+                フォームに入力された問題は自動的に
+                Googleスプレッドシートへ保存されます。
+            </p>
+            <img src="picture/guide2-1.png" alt="Googleスプレッドシートへのリンク" class="guide-image">
+            <img src="picture/guide2-2.png" alt="Googleスプレッドシートの画面" class="guide-image">
+        </section>
+
+        <section class="guide-card">
+            <h2>③ Apps Scriptを作成する</h2>
+
+            <p>
+                スプレッドシートの
+                「拡張機能 → Apps Script」
+                を開いてください。
+            </p>
+
+            <p>
+                作成されたプロジェクトに以下のコードを貼り付けます。
+            </p>
+            <pre>
+function doGet() {
+
+        const sheet =
+    SpreadsheetApp
+        .getActiveSpreadsheet()
+        .getSheets()[0];
+
+    const values =
+    sheet.getDataRange().getValues();
+
+    const quizzes = [];
+
+    for (let i = 1; i < values.length; i++) {
+
+    const answerText = String(values[i][4] || '');
+
+    const answerLines =
+        answerText.split('\n');
+
+    const answers = [];
+
+    for (const answer of answerLines) {
+
+        const trimmed = answer.trim();
+
+        if (trimmed !== '') {
+        answers.push(trimmed);
+    }
+    }
+
+    quizzes.push({
+    id: i,
+    author: values[i][1],
+    genre: values[i][2],
+    question: values[i][3],
+    answers: answers
+    });
+    }
+
+    return ContentService
+    .createTextOutput(
+        JSON.stringify(quizzes)
+    )
+    .setMimeType(
+    ContentService.MimeType.JSON
+    );
+}
+            </pre>
+            <img src="picture/guide3-1.png" alt="Apps Scriptを開く画面" class="guide-image">
+            <img src="picture/guide3-2.png" alt="Apps Scriptのコード編集画面" class="guide-image">
+        </section>
+
+        <section class="guide-card">
+            <h2>④ Webアプリとして公開する</h2>
+
+            <ol>
+                <li>デプロイ</li>
+                <li>新しいデプロイ</li>
+                <li>ウェブアプリ</li>
+                <li>アクセス権限を設定</li>
+                <li>デプロイ</li>
+            </ol>
+
+            <p>
+                デプロイ後に表示されるURLを控えてください。
+            </p>
+            <img src="picture/guide4-1.png" alt="デプロイ画面" class="guide-image">
+            <img src="picture/guide4-2.png" alt="新しいデプロイからウェブアプリ" class="guide-image">
+            <img src="picture/guide4-3.png" alt="デプロイ後のURL" class="guide-image">
+        </section>
+
+        <section class="guide-card">
+            <h2>⑤ クイズシステムと連携する</h2>
+
+            <p>
+                公開されたApps ScriptのURLを
+                「quiz.js」の取得先URLとして設定することで、
+                Googleフォームで集めた問題をクイズに反映できます。
+            </p>
+            <img src="picture/guide5-1.png" alt="作問の森(quiz.js)との連携" class="guide-image">
+            <p>
+            以上で設定は終わりです。    
+            </p>
+        </section>
+
+        <section class="guide-card">
+            <h2>備考</h2>
+
+            <p>
+                本卒業研究版では、GoogleフォームおよびApps Scriptの設定は
+                あらかじめ完了しています。通常の利用者が設定作業を行う必要はありません。
+            </p>
+
+            <p>
+                このガイドは、将来的に他校で利用する際の参考資料として
+                作成しています。
+            </p>
+        </section>
+
+    </div>
+
+</body>
+</html>
