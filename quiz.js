@@ -37,7 +37,22 @@ if (Array.isArray(item.answers)) {
         ratings: item.ratings || { fun: 0, useful: 0, difficult: 0 }
     };
 }
+function shuffleArray(array) {
 
+    const shuffled = [...array];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+
+        const j = Math.floor(
+            Math.random() * (i + 1)
+        );
+
+        [shuffled[i], shuffled[j]] =
+            [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+}
 async function loadQuizzesData() {
     try {
         const response = await fetch('https://script.google.com/macros/s/AKfycbztQoWbf96IXurDhfTeLqDA3eMbsUu7zEQwQKNjQvZzq9k8hdp4LoopCPsMuW3-z1uuFA/exec');
@@ -55,6 +70,25 @@ async function loadQuizzesData() {
         );
         console.log(quizzesData);
     }
+    if (Array.isArray(data)) {
+
+    quizzesData = [];
+
+    for (const item of data) {
+        quizzesData.push(
+            normalizeQuiz(item)
+        );
+    }
+
+    // シャッフル
+    quizzesData = shuffleArray(quizzesData);
+
+    // 5問だけ抽出
+    quizzesData = quizzesData.slice(0, 5);
+
+}
+
+
 
     const storedRatings = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     if (Array.isArray(storedRatings)) {

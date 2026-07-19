@@ -16,8 +16,8 @@ function saveQuestionsToStorage(data) {
 
 async function loadQuestionsForRanking() {
     try {
-        const response = await fetch('questions.json');
-        if (!response.ok) throw new Error('questions.json not found');
+        const response = await fetch('https://script.google.com/macros/s/AKfycbztQoWbf96IXurDhfTeLqDA3eMbsUu7zEQwQKNjQvZzq9k8hdp4LoopCPsMuW3-z1uuFA/exec');
+        if (!response.ok) throw new Error('not found');
         const questions = await response.json();
         const stored = loadQuestionsFromStorage();
 
@@ -40,7 +40,7 @@ async function loadQuestionsForRanking() {
         if (!rankingList) return;
 
         rankingList.innerHTML = '';
-        sorted.forEach((item, index) => {
+        sorted.slice(0, 5).forEach((item, index) => {
             const total = (item.ratings?.fun || 0) + (item.ratings?.useful || 0) + (item.ratings?.difficult || 0);
             const li = document.createElement('li');
             li.className = 'ranking-item';

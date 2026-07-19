@@ -76,6 +76,7 @@
                 Googleスプレッドシートへ保存されます。
             </p>
             <img src="picture/guide2-1.png" alt="Googleスプレッドシートへのリンク" class="guide-image">
+            <p>Googleスプレッドシートを開くと以下のようになります。</p>
             <img src="picture/guide2-2.png" alt="Googleスプレッドシートの画面" class="guide-image">
         </section>
 
@@ -91,7 +92,9 @@
             <p>
                 作成されたプロジェクトに以下のコードを貼り付けます。
             </p>
-            <pre>
+        <div class="code-box">
+            <button id="copy-gas-btn" class="copy-btn">コピー</button>
+            <pre id="gas-code">
 function doGet() {
 
         const sheet =
@@ -140,7 +143,9 @@ function doGet() {
     );
 }
             </pre>
+            </div>
             <img src="picture/guide3-1.png" alt="Apps Scriptを開く画面" class="guide-image">
+            <p>Apps Scriptを開くと以下のような画面になります。もともとのコードを削除し、先ほどコピーしたコードを貼り付けます。</p>
             <img src="picture/guide3-2.png" alt="Apps Scriptのコード編集画面" class="guide-image">
         </section>
 
@@ -160,7 +165,8 @@ function doGet() {
             </p>
             <img src="picture/guide4-1.png" alt="デプロイ画面" class="guide-image">
             <img src="picture/guide4-2.png" alt="新しいデプロイからウェブアプリ" class="guide-image">
-            <img src="picture/guide4-3.png" alt="デプロイ後のURL" class="guide-image">
+            <img src="picture/guide4-3.png" alt="アクセス権限の設定" class="guide-image">
+            <img src="picture/guide4-4.png" alt="デプロイ後のURL" class="guide-image">
         </section>
 
         <section class="guide-card">
@@ -171,9 +177,14 @@ function doGet() {
                 「quiz.js」の取得先URLとして設定することで、
                 Googleフォームで集めた問題をクイズに反映できます。
             </p>
+            <p>矢印の部分を先ほどコピーしたURLに置き換えてください。
+            </p>
+            <p>↓quiz.js</p>
             <img src="picture/guide5-1.png" alt="作問の森(quiz.js)との連携" class="guide-image">
+            <p>↓index.js</p>
+            <img src="picture/guide5-2.png" alt="作問の森(quiz.js)との連携" class="guide-image">
             <p>
-            以上で設定は終わりです。    
+            以上で設定は終わりです。おつかれさまでした。    
             </p>
         </section>
 
@@ -186,12 +197,30 @@ function doGet() {
             </p>
 
             <p>
-                このガイドは、将来的に他校で利用する際の参考資料として
-                作成しています。
+                このガイドは、将来的に他校で利用する際の参考資料として作成しています。
             </p>
         </section>
 
     </div>
+<script>
+document
+.getElementById('copy-gas-btn')
+.addEventListener('click', function () {
+
+    const code =
+        document.getElementById('gas-code')
+        .textContent;
+
+    navigator.clipboard.writeText(code);
+
+    this.textContent = 'コピー完了';
+
+    setTimeout(() => {
+        this.textContent = 'コピー';
+    }, 2000);
+
+});
+</script>
 
 </body>
 </html>
