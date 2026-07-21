@@ -210,9 +210,13 @@ let correctCount = 0;           // 現在の問題での正解数
 let totalTimeLeft = 180;        // 全体時間
 let questionTimeLeft = 90;      // 各問題の時間
 let timerId = null;
+let isTimeUp = false;
 let allCorrectAnswers = [];     // すべての正解を記録
 const targetCorrectPerQuestion = 5; // 1問あたりの目標正解数
 let answerSlotIndex = 0;        // 現在のスロットインデックス
+
+const playerName =
+    localStorage.getItem('playerName') || 'みんな';
 
 // --- 3. HTML要素の取得 ---
 const answerInput = document.getElementById('answer-input');
@@ -235,6 +239,14 @@ const ratingDifficultCount = document.getElementById('rating-difficult-count');
 const ratingPanel = document.getElementById('rating-panel');
 const btnNextQuestion = document.getElementById('btn-next-question');
 const btnReplay = document.getElementById('btn-replay');
+const fairyMessage =
+    document.getElementById(
+        'fairy-message'
+    );
+const btnHomeReturn =
+    document.getElementById(
+        'btn-home-return'
+    );
 
 
 // --- 4. ゲーム進行 ---
@@ -253,6 +265,8 @@ function updateDisplay() {
     document.getElementById('question-text').textContent = `Q. ${currentQuiz.question}`;
     questionMetaDisplay.textContent = `ジャンル: ${currentQuiz.genre}`;
     questionAuthorDisplay.textContent = `作問者: ${currentQuiz.author}`;
+
+    currentTurnLabel.textContent = `${playerName}、みんなの答えを入力してね！`;
 }
 
 function startTimer() {
@@ -268,8 +282,9 @@ function startTimer() {
 
         // 問題ごとの時間が終了
         if (questionTimeLeft <= 0) {
-            moveToNextQuestion();
-        }
+    isTimeUp = true;
+    showQuestionRatingScreen();
+    }
     }, 1000);
 }
 
@@ -283,28 +298,92 @@ function resetRatingButtons() {
 function showQuestionRatingScreen() {
     clearInterval(timerId);
     resultScreen.style.display = 'flex';
-    resultTitle.textContent = 'この問題を評価しよう';
+    if (isTimeUp) {
+        resultTitle.textContent =
+            '時間切れ！😿';
+    } else {
+        resultTitle.textContent =
+            'この問題を評価しよう';
+    }
+
     if (activeQuiz) {
-        resultMessage.textContent = activeQuiz.question;
+        resultMessage.textContent =
+            activeQuiz.question;
     } else {
         resultMessage.textContent = '';
     }
-    if (resultAnswer) {
-        resultAnswer.style.display = 'none';
+    if (resultAnswer && activeQuiz) {
+
+    resultAnswer.style.display =
+        'block';
+
+    const answered = [];
+
+    for (const answerData of allCorrectAnswers) {
+        if (
+            answerData.question ===
+            currentQuestionIndex + 1
+        ) {
+            answered.push(
+                answerData.answer
+            );
+        }
+
     }
 
+    const remainingAnswers =
+        activeQuiz.validAnswers.filter(
+            answer =>
+                !answered.includes(answer)
+        );
+
+    const sampleAnswers =
+    remainingAnswers.slice(0, 3);
+
+if (sampleAnswers.length > 0) {
+    resultAnswer.textContent =
+        '他の答えの例：' +
+        sampleAnswers.join('、');
+} else {
+    resultAnswer.textContent =
+        '他の答えはありません！';
+}
+}
+
     if (ratingPanel) {
-        ratingPanel.style.display = 'block';
+        ratingPanel.style.display =
+            'block';
     }
+
     if (btnNextQuestion) {
-        btnNextQuestion.style.display = 'inline-block';
+        btnNextQuestion.style.display =
+            'inline-block';
     }
+
     if (btnReplay) {
-        btnReplay.style.display = 'none';
+        btnReplay.style.display =
+            'none';
+    }
+    if (btnHomeReturn) {
+    btnHomeReturn.addEventListener(
+        'click',
+        function() {
+            location.href =
+                'index.html';
+        }
+    );
+
+}
+
+    if (fairyMessage) {
+        fairyMessage.style.display =
+            'none';
     }
 
     resetRatingButtons();
+
     updateRatingDisplay();
+
 }
 
 function showResult() {
@@ -315,22 +394,62 @@ function showResult() {
     const maxCorrect = targetCorrectPerQuestion * quizzesData.length;
     resultMessage.textContent = `合計 ${totalCorrect}/${maxCorrect} 個の正解をゲットしました！`;
 
+    const scoreRate =
+    totalCorrect / maxCorrect;
+
+let fairyMessages = [];
+
+if (scoreRate >= 0.8) {
+
+    fairyMessages = [
+        `${playerName}は詳しすぎない？`,
+        `${playerName}は森の博士かも...`,
+        `${playerName}、今日IQ高くない？`
+    ];
+
+} else if (scoreRate >= 0.5) {
+
+    fairyMessages = [
+        `${playerName}、なかなかやるね！`,
+        `森の妖精も感心しています。`,
+        `${playerName}、また遊びに来てね！`
+    ];
+
+} else {
+
+    fairyMessages = [
+        `大丈夫！また挑戦してみよう！`,
+        `${playerName}の次の挑戦を待ってるよ！`
+    ];
+
+}
+
+const randomFairyMessage =
+    fairyMessages[
+        Math.floor(
+            Math.random() *
+            fairyMessages.length
+        )
+    ];
+
+fairyMessage.textContent =
+    `👼 森の妖精「${randomFairyMessage}」`;
+
     if (resultAnswer) {
         resultAnswer.style.display = 'block';
-        let answerText = '🎯 正解した答え：\n';
+        let answerText = '🙆正解した答え：\n';
         for (let i = 0; i < quizzesData.length; i++) {
             let answersStr = '';
 
 for (const answerData of allCorrectAnswers) {
 
     if (answerData.question === i + 1) {
-
         if (answersStr !== '') {
             answersStr += '、';
         }
-
         answersStr += answerData.answer;
     }
+console.log(fairyMessage);
 }
             answerText += `問題${i + 1}: ${answersStr}\n`;
         }
@@ -346,6 +465,12 @@ for (const answerData of allCorrectAnswers) {
     if (btnReplay) {
         btnReplay.style.display = 'inline-block';
     }
+    if (btnHomeReturn) {
+    btnHomeReturn.style.display = 'inline-block';
+    }
+if (fairyMessage) {
+    fairyMessage.style.display = 'block';
+}
 }
 
 function moveToNextQuestion() {
@@ -404,12 +529,12 @@ function handleCorrect(answer) {
     updateDisplay();
     
     // 5個正解で次の問題へ
-    if (correctCount >= targetCorrectPerQuestion) {
-        setTimeout(function() {
-            showQuestionRatingScreen();
-        }, 800);
-    } else {
-        answerInput.focus();
+if (correctCount >= targetCorrectPerQuestion) {
+    setTimeout(function() {
+
+        isTimeUp = false;
+        showQuestionRatingScreen();
+    }, 800);
     }
 }
 
@@ -516,7 +641,7 @@ answerInput.addEventListener('keypress', function(e) {
         if (!currentQuiz) return;
 
         const normalizedInput = val.replace(/\s+/g, '');
-      const normalizedAnswers = [];
+        const normalizedAnswers = [];
 
 for (const answer of currentQuiz.validAnswers) {
     normalizedAnswers.push(

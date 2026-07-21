@@ -679,3 +679,19 @@ body.forest-mode {
 
     margin: 20px 0;
 }
+.fairy-message {
+
+    margin: 20px 0;
+
+    padding: 15px;
+
+    border-radius: 12px;
+
+    background: #f1fff0;
+
+    color: #2e7d32;
+
+    font-weight: bold;
+
+    font-size: 1.1rem;
+}

@@ -70,7 +70,7 @@
         </div>
 
         <div class="input-area">
-            <div id="current-turn-label"> 書記さん、みんなの答えを入力してね！</div>
+            <div id="current-turn-label">ちょっと待ってね...</div>
             <input type="text" id="answer-input" placeholder="こたえを入力してEnter！">
             <div id="feedback" class="feedback"></div>
         </div>
@@ -80,6 +80,9 @@
         <div class="result-dialog" id="result-dialog">
             <h1 id="result-title">結果</h1>
             <p id="result-message">メッセージ</p>
+
+            <p id="fairy-message" class="fairy-message"></p>
+
             <p id="result-answer" class="result-answer"></p>
 
             <div class="rating-panel" id="rating-panel">
@@ -94,7 +97,8 @@
 
             <button class="btn-home" id="btn-next-question" type="button">次の問題へ</button>
             <button class="btn-home" id="btn-replay" type="button" style="display:none; margin-top: 10px;">もう一度あそぶ</button>
-        </div>
+            <button class="btn-home"id="btn-home-return"type="button"style="display:none; margin-top: 10px;">ホームへもどる</button>
+
     </div>
 
     <script src="quiz.js"></script>
