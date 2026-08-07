@@ -756,3 +756,55 @@ body.forest-mode {
 
     top: -110px !important;
 }
+.hiragana-note {
+
+    margin-top: 10px;
+
+    padding: 10px;
+
+    background: #fff8dc;
+
+    border: 2px solid #f0c040;
+
+    border-radius: 10px;
+
+    color: #8b5a00;
+
+    font-weight: bold;
+
+    text-align: center;
+
+}
+#answer-note {
+
+    margin-top: 10px;
+
+    padding: 8px;
+
+    background: #e8f5e9;
+
+    border-radius: 10px;
+
+    color: #2e7d32;
+
+    font-weight: bold;
+
+    text-align: center;
+
+}
+.game-rule {
+
+    margin: 15px 0;
+
+    padding: 12px;
+
+    background: #f5fff5;
+
+    border: 2px solid #8bc34a;
+
+    border-radius: 10px;
+
+    text-align: left;
+
+    font-size: 0.95rem;
+}
