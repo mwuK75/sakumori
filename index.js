@@ -1,5 +1,8 @@
 const STORAGE_KEY = 'sakumon-ratings';
 
+alert(
+    'このゲームでは効果音を使用します。音量にご注意ください。'
+);
 function loadQuestionsFromStorage() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];

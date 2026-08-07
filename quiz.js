@@ -277,14 +277,43 @@ function startTimer() {
         // タイムバーを更新（各問題の90秒を基準）
         const percentage = (questionTimeLeft / 90) * 100;
         timeBar.style.width = Math.max(0, percentage) + '%';
+        const progress = (questionTimeLeft / 90) * 100;
+
+    bombImage.style.left =
+    `calc(${progress}% - 40px)`;
         
         timeLeftDisplay.textContent = `${questionTimeLeft}秒`;
+        if (questionTimeLeft <= 10) {
+
+        bombImage.style.animation =
+        'bombShake 0.2s infinite';
+}
 
         // 問題ごとの時間が終了
-        if (questionTimeLeft <= 0) {
+if (questionTimeLeft <= 0) {
+
+    soundExplosion.currentTime = 0;
+    soundExplosion.play();
+
+    bombImage.src =
+    'picture/bakuhatsu.png';
+
+    bombImage.style.width =
+    '240px';
+
+    bombImage.style.height =
+    '240px';
+
+    bombImage.style.left =
+    'calc(0% - 120px)';
+
+    bombImage.style.top =
+    '-120px';
     isTimeUp = true;
+
     showQuestionRatingScreen();
-    }
+
+}
     }, 1000);
 }
 
@@ -483,6 +512,23 @@ function moveToNextQuestion() {
         correctCount = 0;
         answerSlotIndex = 0;
         questionTimeLeft = 90;
+bombImage.src =
+    'picture/bakudan.png';
+
+bombImage.style.width =
+    '80px';
+
+bombImage.style.height =
+    '80px';
+
+bombImage.style.top =
+    '-28px';
+
+bombImage.style.left =
+    'calc(100% - 40px)';
+
+bombImage.style.animation =
+    'none';
         answerInput.value = '';
         feedback.textContent = '';
 
@@ -503,6 +549,8 @@ function moveToNextQuestion() {
 }
 
 function handleCorrect(answer) {
+    soundCorrect.currentTime = 0;
+    soundCorrect.play();
     correctCount++;
     allCorrectAnswers.push({
         question: currentQuestionIndex + 1,
@@ -539,6 +587,9 @@ if (correctCount >= targetCorrectPerQuestion) {
 }
 
 function handleWrong() {
+    soundWrong.currentTime = 0;
+    soundWrong.play();
+
     // フィードバック表示
     feedback.textContent = '❌ ハズレ！';
     feedback.classList.remove('correct');
@@ -622,6 +673,8 @@ for (const button of ratingButtons) {
 
 if (btnNextQuestion) {
     btnNextQuestion.addEventListener('click', function() {
+        soundDecision.currentTime = 0;
+        soundDecision.play();
         moveToNextQuestion();
     });
 }
@@ -677,10 +730,28 @@ for (const answerData of allCorrectAnswers) {
 
 // ゲーム開始
 async function initGame() {
+    soundDecision.currentTime = 0;
+    soundDecision.play();
     await loadQuizzesData();
     updateDisplay();
     startTimer();
 }
 console.log(selectedGenres);
 
+const soundDecision =
+    new Audio('sound/決定.mp3');
+
+const soundCorrect =
+    new Audio('sound/クイズ正解.mp3');
+
+const soundWrong =
+    new Audio('sound/クイズ不正解.mp3');
+
+const soundExplosion =
+    new Audio('sound/爆発.mp3');
+
+const bombImage =
+    document.getElementById(
+        'bomb-image'
+    );
 initGame();
