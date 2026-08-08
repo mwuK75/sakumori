@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="forest-mode">
+    <img src="picture/yama.png" alt="山の背景" class="home-bg-image">
     <header class="forest-header">
         <h1>🌳 作問の森</h1>
         <div class="header-spacer"></div>
@@ -18,64 +19,47 @@
 
             <div class="menu-box">
                 <button id="open-start-modal" class="btn btn-play">クイズを解く</button>
-                <div id="start-modal" class="start-modal">
+            </div>
 
-    <div class="start-modal-content">
+            <div id="start-modal" class="start-modal">
+                <div class="start-modal-content">
+                    <button type="button" class="modal-close-btn" id="close-start-modal" aria-label="戻る">←</button>
+                    <h2>🌳 クイズの準備</h2>
 
-    <h2>🌳 クイズの準備</h2>
+                    <div class="game-rule">
+                        <p>🔊 効果音があります。音量に注意してね。</p>
+                        <p>📝 こたえはひらがなで入力してね</p>
+                        <p>💣 制限時間は90秒です</p>
+                        <p>🎯 5こ見つけると次の問題へ！</p>
+                    </div>
 
-    <div class="game-rule">
+                    <p>あなたの名前（班名でもOK）</p>
+                    <input type="text" id="player-name" placeholder="名前を入力">
 
-        <p>🔊 効果音があります。音量に注意してね。</p>
+                    <h3>出題ジャンル</h3>
+                    <div class="genre-list">
+                        <label><input type="checkbox" value="国語">国語</label>
+                        <label><input type="checkbox" value="算数">算数</label>
+                        <label><input type="checkbox" value="理科">理科</label>
+                        <label><input type="checkbox" value="社会">社会</label>
+                        <label><input type="checkbox" value="その他">その他</label>
+                    </div>
 
-        <p>📝 こたえはひらがなで入力してね</p>
-
-        <p>💣 制限時間は90秒です</p>
-
-        <p>🎯 5こ見つけると次の問題へ！</p>
-
-    </div>
-
-    <p>あなたの名前（班名でもOK）</p>
-        <input
-            type="text"
-            id="player-name"
-            placeholder="名前を入力">
-
-        <h3>出題ジャンル</h3>
-
-        <div class="genre-list">
-
-            <label><input type="checkbox" value="国語">国語</label>
-
-            <label><input type="checkbox" value="算数">算数</label>
-
-            <label><input type="checkbox" value="理科">理科</label>
-
-            <label><input type="checkbox" value="社会">社会</label>
-
-            <label><input type="checkbox" value="その他">その他</label>
-
+                    <button id="start-quiz-btn" class="btn btn-play">スタート</button>
+                    <p class="hiragana-note">こたえはひらがなで入力してね</p>
+                </div>
+            </div>
         </div>
 
-        <button
-            id="start-quiz-btn"
-            class="btn btn-play">
-
-            スタート
-
-        </button>
-        <p class="hiragana-note"> こたえはひらがなで入力してね</p>
-    </div>
-
-</div>
-            </div>
-        </div>        <section class="ranking-card">
+        <section class="ranking-card">
             <h2>🏆 人気問題ランキング</h2>
             <p class="ranking-description">面白かった・勉強になった・難しかったの合計で並べています。</p>
             <ol id="ranking-list" class="ranking-list"></ol>
         </section>
-                <a href="teacher.html" class="btn btn-play">システム導入ガイド</a>
+
+        <div class="guide-link-row">
+            <a href="teacher.html" class="btn btn-play">システム導入ガイド</a>
+        </div>
     </div>
 
     <script src="index.js"></script>

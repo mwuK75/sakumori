@@ -284,13 +284,25 @@ function startTimer() {
         
         timeLeftDisplay.textContent = `${questionTimeLeft}秒`;
         if (questionTimeLeft <= 10) {
+            bombImage.style.animation = 'bombShake 0.2s infinite';
 
-        bombImage.style.animation =
-        'bombShake 0.2s infinite';
-}
+            if (soundTimer.paused) {
+                soundTimer.loop = true;
+                soundTimer.currentTime = 0;
+                soundTimer.play().catch(() => {});
+            }
+        } else {
+            soundTimer.pause();
+            soundTimer.currentTime = 0;
+            soundTimer.loop = false;
+        }
 
         // 問題ごとの時間が終了
 if (questionTimeLeft <= 0) {
+
+    soundTimer.pause();
+    soundTimer.currentTime = 0;
+    soundTimer.loop = false;
 
     soundExplosion.currentTime = 0;
     soundExplosion.play();
@@ -749,6 +761,9 @@ const soundWrong =
 
 const soundExplosion =
     new Audio('sound/爆発.mp3');
+
+const soundTimer =
+    new Audio('sound/タイマー.mp3');
 
 const bombImage =
     document.getElementById(

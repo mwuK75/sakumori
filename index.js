@@ -66,19 +66,44 @@ const startBtn =
     document.getElementById(
         'start-quiz-btn'
     );
+const closeBtn = document.getElementById('close-start-modal');
 
 if (openBtn) {
 
     openBtn.addEventListener(
         'click',
         () => {
+            const rankingCard = document.querySelector('.ranking-card');
+            const guideLinkRow = document.querySelector('.guide-link-row');
 
-            modal.style.display =
-                'flex';
+            if (rankingCard) {
+                rankingCard.style.display = 'none';
+            }
+            if (guideLinkRow) {
+                guideLinkRow.style.display = 'none';
+            }
 
+            modal.style.display = 'flex';
         }
     );
 
+}
+
+if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+        const rankingCard = document.querySelector('.ranking-card');
+        const guideLinkRow = document.querySelector('.guide-link-row');
+
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        if (rankingCard) {
+            rankingCard.style.display = 'block';
+        }
+        if (guideLinkRow) {
+            guideLinkRow.style.display = 'block';
+        }
+    });
 }
 
 if (startBtn) {
