@@ -1,3 +1,138 @@
+
+let checkedAnswers = [];
+// 生徒回答を取得する関数
+async function loadStudentAnswers() {
+    
+    console.log("回答取得開始");
+
+    const response =
+        await fetch(
+            "https://script.google.com/macros/s/AKfycbzn1QqB_S5KJCR7DEbvK_ssbjxdkywLXtgeuglxksFNVDcX7Li8yl0sUIkSzCHBVfIP/exec"
+        );
+
+    const data =
+        await response.json();
+        console.log("取得データ", data);
+
+data.forEach(item => {
+
+        console.log(
+            "判定へ送る",
+            item.answer
+        );
+
+        checkStudentAnswer(
+            item.answer
+        );
+
+    });
+
+for(const item of data) {
+
+    console.log(
+        "回答の問題番号",
+        item.questionId,
+        "現在の問題",
+        currentQuestionIndex + 1
+    );
+
+    if (
+        Number(item.questionId)
+        !== currentQuestionIndex + 1
+    ) {
+        console.log("別の問題なので無視");
+        continue;
+    }
+
+    console.log("現在の問題なので判定");
+
+    if (
+        checkedAnswers.includes(
+            item.answer
+        )
+    ) {
+        continue;
+    }
+
+    checkedAnswers.push(
+        item.answer
+    );
+
+    checkStudentAnswer(
+        item.answer
+    );
+}
+}
+// 正解判定関数
+function checkStudentAnswer(answer) {
+
+    console.log(
+        "判定開始",
+        answer
+    );
+
+    const currentQuiz =
+        quizzesData[
+            currentQuestionIndex
+        ];
+
+    if(!currentQuiz) {
+        return;
+    }
+
+    const normalized =
+        answer.trim();
+
+    let isCorrect = false;
+
+    for(
+        const correctAnswer
+        of currentQuiz.validAnswers
+    ) {
+
+        if(
+            correctAnswer ===
+            normalized
+        ) {
+
+            isCorrect = true;
+
+        }
+    }
+
+    if(isCorrect) {
+
+        let alreadyAnswered =
+            false;
+
+        for(
+            const answerData
+            of allCorrectAnswers
+        ) {
+
+            if(
+                answerData.question ===
+                currentQuestionIndex + 1 &&
+                answerData.answer ===
+                normalized
+            ) {
+
+                alreadyAnswered =
+                    true;
+
+            }
+
+        }
+
+        if(!alreadyAnswered) {
+
+            handleCorrect(
+                normalized
+            );
+
+        }
+    }
+}
 // --- 1. 問題データ（questions.json を読み込む） ---
 let quizzesData = [];
 const STORAGE_KEY = 'sakumon-ratings';
@@ -515,6 +650,7 @@ if (fairyMessage) {
 }
 
 function moveToNextQuestion() {
+    checkedAnswers = [];
     clearInterval(timerId);
     currentQuestionIndex++;
 
@@ -611,7 +747,7 @@ function handleWrong() {
     answerInput.focus();
     
     // 1秒後にフィードバッククリア
- setTimeout(function() {
+setTimeout(function() {
     feedback.textContent = '';
     feedback.classList.remove('wrong');
 }, 1000);
@@ -742,12 +878,20 @@ for (const answerData of allCorrectAnswers) {
 
 // ゲーム開始
 async function initGame() {
-    soundDecision.currentTime = 0;
-    soundDecision.play();
+
     await loadQuizzesData();
+
     updateDisplay();
+
     startTimer();
+
+    setInterval(
+        loadStudentAnswers,
+        2000
+    );
+
 }
+
 console.log(selectedGenres);
 
 const soundDecision =
