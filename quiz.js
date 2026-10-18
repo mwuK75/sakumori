@@ -14,18 +14,6 @@ async function loadStudentAnswers() {
         await response.json();
         console.log("取得データ", data);
 
-data.forEach(item => {
-
-        console.log(
-            "判定へ送る",
-            item.answer
-        );
-
-        checkStudentAnswer(
-            item.answer
-        );
-
-    });
 
 for(const item of data) {
 
