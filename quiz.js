@@ -1,5 +1,6 @@
-
 let checkedAnswers = [];
+let gameStartTime = 0;
+
 // 生徒回答を取得する関数
 async function loadStudentAnswers() {
     
@@ -7,7 +8,7 @@ async function loadStudentAnswers() {
 
     const response =
         await fetch(
-            "https://script.google.com/macros/s/AKfycbzn1QqB_S5KJCR7DEbvK_ssbjxdkywLXtgeuglxksFNVDcX7Li8yl0sUIkSzCHBVfIP/exec"
+            "https://script.google.com/macros/s/AKfycbwUN3skOBJjCB3jduqKxm9S_0lfMsGhN1YudMJITBgncm7KtQlxnksTgYs7haFxmnvA/exec"
         );
 
     const data =
@@ -16,7 +17,18 @@ async function loadStudentAnswers() {
 
 
 for(const item of data) {
+    const answerTime =
+    new Date(item.timestamp).getTime();
 
+if(answerTime < gameStartTime){
+
+    console.log(
+        "ゲーム開始前の回答なので無視",
+        item.answer
+    );
+
+    continue;
+}
     console.log(
         "回答の問題番号",
         item.questionId,
@@ -866,6 +878,13 @@ for (const answerData of allCorrectAnswers) {
 
 // ゲーム開始
 async function initGame() {
+
+    gameStartTime = Date.now();
+
+    console.log(
+        "ゲーム開始時刻",
+        new Date(gameStartTime)
+    );
 
     await loadQuizzesData();
 
