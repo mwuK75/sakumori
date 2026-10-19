@@ -46,18 +46,27 @@ if(answerTime < gameStartTime){
 
     console.log("現在の問題なので判定");
 
-    if (
-        checkedAnswers.includes(
-            item.answer
-        )
-    ) {
-        continue;
-    }
+if (
+    checkedAnswers.includes(
+        item.answer
+    )
+) {
+
+    console.log(
+        "すでに判定済み",
+        item.answer
+    );
+
+    continue;
+}
 
     checkedAnswers.push(
         item.answer
     );
-
+console.log(
+    "checkStudentAnswerを呼ぶ",
+    item.answer
+);
     checkStudentAnswer(
         item.answer
     );
@@ -82,7 +91,9 @@ function checkStudentAnswer(answer) {
 
     const normalized =
         answer.trim();
-
+    if(normalized === ''){
+    return;
+}
     let isCorrect = false;
 
     for(
@@ -131,7 +142,25 @@ function checkStudentAnswer(answer) {
             );
 
         }
-    }
+    } else {
+
+    console.log(
+        "不正解",
+        normalized
+    );
+
+    console.log(
+        "handleWrongを呼びます"
+    );
+
+    handleWrong(
+        normalized
+    );
+
+    console.log(
+        "handleWrong終了"
+    );
+}
 }
 // --- 1. 問題データ（questions.json を読み込む） ---
 let quizzesData = [];
@@ -381,6 +410,10 @@ const fairyMessage =
 const btnHomeReturn =
     document.getElementById(
         'btn-home-return'
+    );
+const wrongAnswerArea =
+    document.getElementById(
+        'wrong-answer-area'
     );
 
 
@@ -734,7 +767,9 @@ if (correctCount >= targetCorrectPerQuestion) {
     }
 }
 
-function handleWrong() {
+
+function handleWrong(answer) {
+
     soundWrong.currentTime = 0;
     soundWrong.play();
 
@@ -742,15 +777,36 @@ function handleWrong() {
     feedback.textContent = '❌ ハズレ！';
     feedback.classList.remove('correct');
     feedback.classList.add('wrong');
-    
+
+    // 不正解の答えを表示
+    const wrongAnswerArea =
+        document.getElementById(
+            'wrong-answer-area'
+        );
+
+    if (wrongAnswerArea && answer) {
+
+        wrongAnswerArea.textContent =
+            "❌ " + answer;
+
+        setTimeout(function() {
+
+            wrongAnswerArea.textContent =
+                '';
+
+        }, 5000);
+    }
+
     answerInput.value = '';
+
     answerInput.focus();
-    
-    // 1秒後にフィードバッククリア
-setTimeout(function() {
-    feedback.textContent = '';
-    feedback.classList.remove('wrong');
-}, 1000);
+
+    setTimeout(function() {
+
+        feedback.textContent = '';
+        feedback.classList.remove('wrong');
+
+    }, 1000);
 }
 
 function saveRatingsToStorage() {

@@ -880,3 +880,21 @@ body.forest-mode {
 
     font-size: 0.95rem;
 }
+#wrong-answer-area {
+    height: 50px;
+    font-size: 24px;
+    text-align: center;
+    color: #666;
+    font-weight: bold;
+}
+
+#wrong-answer-area {
+    min-height: 60px;
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+    color: red;
+    background: #f5fff5;
+    border: 3px solid #8bc34a;
+    margin: 10px 0;
+}
