@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>問題評価ページ</title>
+
+<title>作問の森 生徒ページ</title>
 
 <style>
 
@@ -12,27 +13,47 @@ body{
     text-align:center;
     background:#f4fff1;
     margin:0;
-    padding:30px;
+    padding:20px;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
 }
 
 h1{
     color:#2e7d32;
 }
 
-#question-select{
-    font-size:20px;
-    padding:10px;
-    margin-bottom:20px;
+.section{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+input,
+select{
+    width:90%;
+    padding:12px;
+    font-size:18px;
+    margin:10px 0;
 }
 
 button{
-    width:280px;
-    font-size:24px;
-    padding:18px;
-    margin:10px;
+    width:90%;
+    padding:15px;
+    font-size:20px;
     border:none;
-    border-radius:15px;
+    border-radius:10px;
     cursor:pointer;
+    margin:8px 0;
+}
+
+.answer-btn{
+    background:#4caf50;
+    color:white;
 }
 
 .fun{
@@ -47,63 +68,182 @@ button{
     background:#ffcc80;
 }
 
-#message{
-    margin-top:30px;
-    font-size:22px;
+.message{
+    margin-top:15px;
     font-weight:bold;
-    color:#2e7d32;
 }
 
 </style>
-
 </head>
+
 <body>
 
-<h1>この問題を評価しよう！</h1>
+<div class="container">
 
-<p>評価する問題を選んでください</p>
+<h1>🌳 作問の森</h1>
+
+<div class="section">
+
+<h2>回答する</h2>
+
+<input
+    type="text"
+    id="student-name"
+    placeholder="名前">
+
+<input
+    type="text"
+    id="student-answer"
+    placeholder="答えをひらがなで入力">
 
 <select id="question-select">
 
-    <option value="1">問題1</option>
-    <option value="2">問題2</option>
-    <option value="3">問題3</option>
-    <option value="4">問題4</option>
-    <option value="5">問題5</option>
+<option value="1">問題1</option>
+<option value="2">問題2</option>
+<option value="3">問題3</option>
+<option value="4">問題4</option>
+<option value="5">問題5</option>
 
 </select>
 
-<br>
+<button
+    class="answer-btn"
+    onclick="sendAnswer()">
+
+    回答を送信
+
+</button>
+
+<div
+    id="answer-message"
+    class="message">
+</div>
+
+</div>
+
+<div class="section">
+
+<h2>問題を評価する</h2>
 
 <button
     class="fun"
     onclick="sendRating('面白かった')">
-    ❤️ 面白かった
-</button>
 
-<br>
+❤️ 面白かった
+
+</button>
 
 <button
     class="useful"
     onclick="sendRating('勉強になった')">
-    💡 勉強になった
-</button>
 
-<br>
+💡 勉強になった
+
+</button>
 
 <button
     class="difficult"
     onclick="sendRating('難しかった')">
-    🔥 難しかった
+
+🔥 難しかった
+
 </button>
 
-<div id="message"></div>
+<div
+    id="rating-message"
+    class="message">
+</div>
+
+</div>
+
+</div>
 
 <script>
+// 回答用GAS
+const ANSWER_GAS_URL =
+"https://script.google.com/macros/s/AKfycbwUN3skOBJjCB3jduqKxm9S_0lfMsGhN1YudMJITBgncm7KtQlxnksTgYs7haFxmnvA/exec";
 
-const GAS_URL =
+// 評価用GAS
+const RATING_GAS_URL =
 "https://script.google.com/macros/s/AKfycbzkpgy5OvzHBtNYRGPcyQcgWJXjBPqlHSHGGUNH8OOA8y3KRTS0ELauOFQUkz1XW3TWaA/exec";
 
+function sendAnswer(){
+
+    const name =
+        document.getElementById(
+            "student-name"
+        ).value.trim();
+
+    const answer =
+        document.getElementById(
+            "student-answer"
+        ).value.trim();
+
+    const questionId =
+        document.getElementById(
+            "question-select"
+        ).value;
+
+    if(name === "" || answer === ""){
+
+        document
+        .getElementById(
+            "answer-message"
+        ).textContent =
+        "名前と回答を入力してください";
+
+        return;
+    }
+
+    document
+    .getElementById(
+        "answer-message"
+    ).textContent =
+    "送信中...";
+
+    fetch(
+        ANSWER_GAS_URL,
+        {
+            method:"POST",
+
+            body:JSON.stringify({
+
+                name:name,
+                answer:answer,
+                questionId:questionId
+
+            })
+
+        }
+    )
+    .then(response => response.text())
+    .then(data => {
+
+        document
+        .getElementById(
+            "answer-message"
+        ).textContent =
+        "✅ 回答を送信しました";
+
+        document
+        .getElementById(
+            "student-answer"
+        ).value = "";
+
+    })
+    .catch(error => {
+
+        console.error(error);
+
+        document
+        .getElementById(
+            "answer-message"
+        ).textContent =
+        "❌ 送信失敗";
+
+    });
+
+}
 
 function sendRating(rating){
 
@@ -112,37 +252,40 @@ function sendRating(rating){
             "question-select"
         ).value;
 
-    document.getElementById(
-        "message"
+    document
+    .getElementById(
+        "rating-message"
     ).textContent =
-        "送信中...";
+    "送信中...";
 
     fetch(
-        GAS_URL +
+        RATING_GAS_URL +
         "?questionId=" +
         questionId +
         "&rating=" +
-        encodeURIComponent(rating)
+        encodeURIComponent(
+            rating
+        )
     )
-    .then(response =>
-        response.text()
-    )
+    .then(response => response.text())
     .then(data => {
 
-        document.getElementById(
-            "message"
+        document
+        .getElementById(
+            "rating-message"
         ).textContent =
-            "✅ 評価ありがとうございました！";
+        "✅ 評価ありがとうございました";
 
     })
     .catch(error => {
 
         console.error(error);
 
-        document.getElementById(
-            "message"
+        document
+        .getElementById(
+            "rating-message"
         ).textContent =
-            "❌ 送信失敗";
+        "❌ 送信失敗";
 
     });
 
