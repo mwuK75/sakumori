@@ -12,8 +12,11 @@ body{
     font-family:sans-serif;
     text-align:center;
     background:#f4fff1;
-    background-image: radial-gradient(#e0f2cb 20%, transparent 20%);
-    background-size: 20px 20px;
+    background-image:url("picture/mori.jpg");
+    background-position:center;
+    background-size:cover;
+    background-attachment:fixed;
+    background-repeat:no-repeat;
     margin:0;
     padding:20px;
 }
@@ -25,6 +28,10 @@ body{
 
 h1{
     color:#2e7d32;
+    display:inline-block;
+    padding:10px 20px;
+    background:rgba(255,255,255,0.82);
+    border-radius:15px;
 }
 
 .section{
@@ -75,6 +82,14 @@ button{
     font-weight:bold;
 }
 
+.student-illustration{
+    display:block;
+    width:100%;
+    max-width:500px;
+    height:auto;
+    margin:20px auto 0;
+}
+
 </style>
 </head>
 
@@ -123,6 +138,12 @@ button{
 </div>
 
 </div>
+
+<img
+    src="picture/usagi.png"
+    alt="うさぎと一緒に問題を作る生徒"
+    class="student-illustration">
+
 <!-- 
 <div class="section">
 
