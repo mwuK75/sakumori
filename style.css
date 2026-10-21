@@ -108,6 +108,31 @@ h1 {
     flex-wrap: wrap;
 }
 
+.student-page-link {
+    margin-top: 22px;
+}
+
+.student-page-link p {
+    margin: 0 0 8px;
+    font-weight: bold;
+}
+
+.student-page-link a {
+    display: inline-block;
+}
+
+.student-page-link img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    transition: transform 0.2s ease;
+}
+
+.student-page-link a:hover img,
+.student-page-link a:focus-visible img {
+    transform: scale(1.1);
+}
+
 .btn {
     display: inline-block;
     min-width: 220px;
