@@ -3,6 +3,7 @@ const processedAnswerIds = new Set();
 const gameAnswerLog = [];
 let studentAnswerPollId = null;
 let feedbackTimeout = null;
+let submittedAnswerTimeout = null;
 
 // 生徒回答を取得する関数
 async function loadStudentAnswers() {
@@ -11,7 +12,7 @@ async function loadStudentAnswers() {
 
     const response =
         await fetch(
-            "https://script.google.com/macros/s/AKfycbwUN3skOBJjCB3jduqKxm9S_0lfMsGhN1YudMJITBgncm7KtQlxnksTgYs7haFxmnvA/exec"
+            "https://script.google.com/macros/s/AKfycby6wQFYHOi0Dp2m3sxSm8uuoxMMzEEzVFtXbEY3uKLiTUn_QhZmlxVcyXEwDjBfSOMH/exec"
         );
 
     if (!response.ok) {
@@ -75,6 +76,7 @@ async function loadStudentAnswers() {
             !isTimeUp &&
             resultScreen.style.display === 'none'
         ) {
+            showSubmittedAnswer(answer);
             checkStudentAnswer(answer);
         }
     }
@@ -135,7 +137,10 @@ function checkStudentAnswer(answer) {
                 normalized
             );
         } else {
-            showAnswerFeedback('⭕ 正解！', 'correct');
+            showAnswerFeedback(
+                'その答えはすでに回答されました',
+                'duplicate'
+            );
         }
     } else {
 
@@ -444,7 +449,7 @@ function startTimer() {
             if (soundTimer.paused) {
                 soundTimer.loop = true;
                 soundTimer.currentTime = 0;
-                soundTimer.play().catch(() => {});
+                playGameSound(soundTimer);
             }
         } else {
             soundTimer.pause();
@@ -460,7 +465,7 @@ if (questionTimeLeft <= 0) {
     soundTimer.loop = false;
 
     soundExplosion.currentTime = 0;
-    soundExplosion.play();
+    playGameSound(soundExplosion);
 
     bombImage.src =
     'picture/bakuhatsu.png';
@@ -698,6 +703,9 @@ function moveToNextQuestion() {
         correctCount = 0;
         answerSlotIndex = 0;
         questionTimeLeft = 90;
+        isTimeUp = false;
+        clearTimeout(submittedAnswerTimeout);
+        document.getElementById('wrong-answer-area').textContent = '';
 bombImage.src =
     'picture/bakudan.png';
 
@@ -734,7 +742,7 @@ bombImage.style.animation =
 
 function handleCorrect(answer) {
     soundCorrect.currentTime = 0;
-    soundCorrect.play();
+    playGameSound(soundCorrect);
     correctCount++;
     allCorrectAnswers.push({
         question: currentQuestionIndex + 1,
@@ -771,41 +779,32 @@ if (correctCount >= targetCorrectPerQuestion) {
 function handleWrong(answer) {
 
     soundWrong.currentTime = 0;
-    soundWrong.play();
+    playGameSound(soundWrong);
 
     showAnswerFeedback('❌ ハズレ！', 'wrong');
+}
 
-    // 不正解の答えを表示
-    const wrongAnswerArea =
-        document.getElementById(
-            'wrong-answer-area'
-        );
+function showSubmittedAnswer(answer) {
+    const submittedAnswerArea =
+        document.getElementById('wrong-answer-area');
 
-    if (wrongAnswerArea && answer) {
-
-        wrongAnswerArea.textContent =
-            "❌ " + answer;
-
-        setTimeout(function() {
-
-            wrongAnswerArea.textContent =
-                '';
-
-        }, 5000);
-    }
-
+    clearTimeout(submittedAnswerTimeout);
+    submittedAnswerArea.textContent = answer;
+    submittedAnswerTimeout = setTimeout(function() {
+        submittedAnswerArea.textContent = '';
+    }, 5000);
 }
 
 function showAnswerFeedback(message, resultClass) {
     clearTimeout(feedbackTimeout);
     feedback.textContent = message;
-    feedback.classList.remove('correct', 'wrong');
+    feedback.classList.remove('correct', 'wrong', 'duplicate');
     feedback.classList.add(resultClass);
 
     feedbackTimeout = setTimeout(function() {
         feedback.textContent = '';
         feedback.classList.remove(resultClass);
-    }, 4000);
+    }, 1000);
 }
 
 function saveRatingsToStorage() {
@@ -877,7 +876,7 @@ for (const button of ratingButtons) {
 if (btnNextQuestion) {
     btnNextQuestion.addEventListener('click', function() {
         soundDecision.currentTime = 0;
-        soundDecision.play();
+        playGameSound(soundDecision);
         moveToNextQuestion();
     });
 }
@@ -926,6 +925,42 @@ const soundExplosion =
 
 const soundTimer =
     new Audio('sound/タイマー.mp3');
+
+const gameSounds = [
+    soundDecision,
+    soundCorrect,
+    soundWrong,
+    soundExplosion,
+    soundTimer
+];
+
+function playGameSound(sound) {
+    sound.play().catch(error => {
+        console.warn(`効果音を再生できませんでした: ${sound.src}`, error);
+    });
+}
+
+function unlockGameSounds() {
+    for (const sound of gameSounds) {
+        sound.muted = true;
+        sound.play()
+            .then(() => {
+                sound.pause();
+                sound.currentTime = 0;
+                sound.muted = false;
+            })
+            .catch(error => {
+                sound.muted = false;
+                console.warn('効果音を有効にできませんでした', error);
+            });
+    }
+
+    document.removeEventListener('pointerdown', unlockGameSounds);
+    document.removeEventListener('keydown', unlockGameSounds);
+}
+
+document.addEventListener('pointerdown', unlockGameSounds, { once: true });
+document.addEventListener('keydown', unlockGameSounds, { once: true });
 
 const bombImage =
     document.getElementById(

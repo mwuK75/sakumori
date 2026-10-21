@@ -510,6 +510,10 @@ body.forest-mode {
     animation: shake 0.3s ease-in-out;
 }
 
+.feedback.duplicate {
+    color: #6c757d;
+}
+
 @keyframes popIn {
     0% {
         opacity: 0;
@@ -897,20 +901,18 @@ body.forest-mode {
     font-size: 0.95rem;
 }
 #wrong-answer-area {
-    height: 50px;
-    font-size: 24px;
-    text-align: center;
-    color: #666;
-    font-weight: bold;
-}
-
-#wrong-answer-area {
     min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    box-sizing: border-box;
     font-size: 40px;
-    font-weight: bold;
     text-align: center;
-    color: red;
+    color: #2e7d32;
     background: #f5fff5;
     border: 3px solid #8bc34a;
+    border-radius: 10px;
     margin: 10px 0;
+    font-weight: bold;
 }
