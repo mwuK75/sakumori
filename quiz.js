@@ -7,8 +7,6 @@ let submittedAnswerTimeout = null;
 
 // 生徒回答を取得する関数
 async function loadStudentAnswers() {
-    
-    console.log("回答取得開始");
 
     const response =
         await fetch(
@@ -83,12 +81,6 @@ async function loadStudentAnswers() {
 }
 // 正解判定関数
 function checkStudentAnswer(answer) {
-
-    console.log(
-        "判定開始",
-        answer
-    );
-
     const currentQuiz =
         quizzesData[
             currentQuestionIndex
@@ -143,26 +135,10 @@ function checkStudentAnswer(answer) {
             );
         }
     } else {
-
-    console.log(
-        "不正解",
-        normalized
-    );
-
-    console.log(
-        "handleWrongを呼びます"
-    );
-
-    handleWrong(
-        normalized
-    );
-
-    console.log(
-        "handleWrong終了"
-    );
+        handleWrong();
+    }
 }
-}
-// --- 1. 問題データ（questions.json を読み込む） ---
+// --- 問題データ ---
 let quizzesData = [];
 const STORAGE_KEY = 'sakumon-ratings';
 
@@ -170,14 +146,10 @@ const selectedGenres =
     JSON.parse(
         localStorage.getItem('selectedGenres')
     ) || [];
-console.log(
-    'selectedGenres =',
-    selectedGenres
-);
 
 function normalizeQuiz(item) {
 
-let answers = [];
+const answers = [];
 
 if (Array.isArray(item.answers)) {
 
@@ -227,11 +199,6 @@ function shuffleArray(array) {
 
     return shuffled;
 }
-console.log(
-    quizzesData.map(
-        q => q.genre
-    )
-);
 async function loadQuizzesData() {
 
     try {
@@ -258,11 +225,6 @@ async function loadQuizzesData() {
 
             }
 
-            console.log(
-                '全ジャンル',
-                quizzesData.map(q => q.genre)
-            );
-
             if (selectedGenres.length > 0) {
 
                 quizzesData =
@@ -274,11 +236,6 @@ async function loadQuizzesData() {
                     );
 
             }
-
-            console.log(
-    '絞り込み後',
-    quizzesData.map(q => q.genre)
-);
 
 if (quizzesData.length === 0) {
 
@@ -371,11 +328,10 @@ quizzesData =
 let currentQuestionIndex = 0;
 let activeQuiz = null;
 let correctCount = 0;           // 現在の問題での正解数
-let totalTimeLeft = 180;        // 全体時間
 let questionTimeLeft = 90;      // 各問題の時間
 let timerId = null;
 let isTimeUp = false;
-let allCorrectAnswers = [];     // すべての正解を記録
+const allCorrectAnswers = [];   // すべての正解を記録
 const targetCorrectPerQuestion = 5; // 1問あたりの目標正解数
 let answerSlotIndex = 0;        // 現在のスロットインデックス
 
@@ -397,19 +353,12 @@ const ratingUsefulCount = document.getElementById('rating-useful-count');
 const ratingDifficultCount = document.getElementById('rating-difficult-count');
 const ratingPanel = document.getElementById('rating-panel');
 const btnNextQuestion = document.getElementById('btn-next-question');
-const btnShowAwards = document.getElementById('btn-show-awards');
 const btnReplay = document.getElementById('btn-replay');
 const awardsScreen = document.getElementById('awards-screen');
 const btnHomeReturn =
     document.getElementById(
         'btn-home-return'
     );
-const wrongAnswerArea =
-    document.getElementById(
-        'wrong-answer-area'
-    );
-
-
 // --- 4. ゲーム進行 ---
 function updateDisplay() {
     if (!quizzesData.length) return;
@@ -431,7 +380,6 @@ function updateDisplay() {
 
 function startTimer() {
     timerId = setInterval(function() {
-        totalTimeLeft--;
         questionTimeLeft--;
         
         // タイムバーを更新（各問題の90秒を基準）
@@ -502,10 +450,11 @@ function showQuestionRatingScreen() {
     if (isTimeUp) {
         resultTitle.textContent =
             '時間切れ！😿';
-    } else {
-        resultTitle.textContent =
-            'この問題を評価しよう';
     }
+    // } else {
+    //     resultTitle.textContent =
+    //         'この問題を評価しよう';
+    // }
 
     if (activeQuiz) {
         resultMessage.textContent =
@@ -631,9 +580,6 @@ for (const answerData of allCorrectAnswers) {
     if (btnNextQuestion) {
         btnNextQuestion.style.display = 'none';
     }
-    if (btnShowAwards) {
-        btnShowAwards.style.display = 'inline-block';
-    }
     if (btnReplay) {
         btnReplay.style.display = 'none';
     }
@@ -643,6 +589,7 @@ for (const answerData of allCorrectAnswers) {
     if (awardsScreen) {
         awardsScreen.hidden = true;
     }
+    showAwards();
 }
 
 function getWinners(countFor) {
@@ -686,9 +633,7 @@ function showAwards() {
         '回答数'
     );
 
-    resultAnswer.hidden = true;
     awardsScreen.hidden = false;
-    btnShowAwards.style.display = 'none';
     btnReplay.style.display = 'inline-block';
     btnHomeReturn.style.display = 'inline-block';
 }
@@ -776,7 +721,7 @@ if (correctCount >= targetCorrectPerQuestion) {
 }
 
 
-function handleWrong(answer) {
+function handleWrong() {
 
     soundWrong.currentTime = 0;
     playGameSound(soundWrong);
@@ -887,10 +832,6 @@ if (btnReplay) {
     });
 }
 
-if (btnShowAwards) {
-    btnShowAwards.addEventListener('click', showAwards);
-}
-
 // ゲーム開始
 async function initGame() {
 
@@ -908,8 +849,6 @@ async function initGame() {
     }, 2000);
 
 }
-
-console.log(selectedGenres);
 
 const soundDecision =
     new Audio('sound/決定.mp3');

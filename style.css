@@ -64,7 +64,6 @@ body.forest-mode::before {
 }
 
 .hero-card,
-.ranking-card,
 .game-board,
 .result-dialog {
     position: relative;
@@ -157,29 +156,6 @@ h1 {
 
 .btn-play {
     background-color: #e8590c;
-}
-
-.ranking-card {
-    background-color: #fff;
-    border: 2px solid #d4a373;
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: 0 4px 10px rgba(92, 74, 61, 0.08);
-}
-
-.ranking-card h2 {
-    margin-top: 0;
-    color: #2f5d3b;
-}
-
-.ranking-description {
-    color: #6b5b4d;
-    margin-bottom: 16px;
-}
-
-.ranking-list {
-    text-align: left;
-    padding-left: 20px;
 }
 
 .guide-link-row {
@@ -653,36 +629,6 @@ body.forest-mode {
     cursor: default;
 }
 
-/* --- ランキング --- */
-.ranking-card {
-    margin: 40px auto 0;
-    max-width: 700px;
-    background-color: #fff;
-    border-radius: 16px;
-    padding: 24px 28px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    text-align: left;
-}
-
-.ranking-description {
-    color: #666;
-    margin-bottom: 16px;
-}
-
-.ranking-list {
-    padding-left: 20px;
-}
-
-.ranking-item {
-    margin-bottom: 12px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background-color: #f7f8f2;
-}
-
-.ranking-item strong {
-    color: #2f4f2f;
-}
 .guide-card {
     background: #ffffff;
     padding: 24px;
