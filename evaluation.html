@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>問題評価ページ</title>
+
+<style>
+
+body{
+    font-family:sans-serif;
+    text-align:center;
+    background:#f4fff1;
+    margin:0;
+    padding:30px;
+}
+
+h1{
+    color:#2e7d32;
+}
+
+#question-select{
+    font-size:20px;
+    padding:10px;
+    margin-bottom:20px;
+}
+
+button{
+    width:280px;
+    font-size:24px;
+    padding:18px;
+    margin:10px;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+}
+
+.fun{
+    background:#ffb6c1;
+}
+
+.useful{
+    background:#fff59d;
+}
+
+.difficult{
+    background:#ffcc80;
+}
+
+#message{
+    margin-top:30px;
+    font-size:22px;
+    font-weight:bold;
+    color:#2e7d32;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>この問題を評価しよう！</h1>
+
+<p>評価する問題を選んでください</p>
+
+<select id="question-select">
+
+    <option value="1">問題1</option>
+    <option value="2">問題2</option>
+    <option value="3">問題3</option>
+    <option value="4">問題4</option>
+    <option value="5">問題5</option>
+
+</select>
+
+<br>
+
+<button
+    class="fun"
+    onclick="sendRating('面白かった')">
+    ❤️ 面白かった
+</button>
+
+<br>
+
+<button
+    class="useful"
+    onclick="sendRating('勉強になった')">
+    💡 勉強になった
+</button>
+
+<br>
+
+<button
+    class="difficult"
+    onclick="sendRating('難しかった')">
+    🔥 難しかった
+</button>
+
+<div id="message"></div>
+
+<script>
+
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbzkpgy5OvzHBtNYRGPcyQcgWJXjBPqlHSHGGUNH8OOA8y3KRTS0ELauOFQUkz1XW3TWaA/exec";
+
+
+function sendRating(rating){
+
+    const questionId =
+        document.getElementById(
+            "question-select"
+        ).value;
+
+    document.getElementById(
+        "message"
+    ).textContent =
+        "送信中...";
+
+    fetch(
+        GAS_URL +
+        "?questionId=" +
+        questionId +
+        "&rating=" +
+        encodeURIComponent(rating)
+    )
+    .then(response =>
+        response.text()
+    )
+    .then(data => {
+
+        document.getElementById(
+            "message"
+        ).textContent =
+            "✅ 評価ありがとうございました！";
+
+    })
+    .catch(error => {
+
+        console.error(error);
+
+        document.getElementById(
+            "message"
+        ).textContent =
+            "❌ 送信失敗";
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>

@@ -34,6 +34,10 @@
             <p id="question-meta" class="question-meta">ジャンル: 読み込み中</p>
             <h2 id="question-text">Q. 読み込み中...</h2>
             <p id="question-author" class="question-author">作問者: 読み込み中</p>
+            <p id="answer-instructions" class="answer-instructions" hidden>
+                答えはひらがなで入力してね！<br>
+                答えを送信してね！
+            </p>
             
             <div class="time-bar-container">
 
@@ -71,20 +75,15 @@
         </div>
         <div id="wrong-answer-area"></div>
 
-        <div class="input-area">
-            <div id="current-turn-label">ちょっと待ってね...</div>
-            <input type="text" id="answer-input" placeholder="こたえをひらがなで入力してEnter！">
+        <div class="feedback-area">
             <div id="feedback" class="feedback"></div>
         </div>
-        <p id="answer-note">答えはひらがなで入力してね！</p>
     </main>
 
     <div class="result-overlay" id="result-screen" style="display: none;">
         <div class="result-dialog" id="result-dialog">
             <h1 id="result-title">結果</h1>
             <p id="result-message">メッセージ</p>
-
-            <p id="fairy-message" class="fairy-message"></p>
 
             <p id="result-answer" class="result-answer"></p>
 

@@ -379,13 +379,8 @@ let allCorrectAnswers = [];     // すべての正解を記録
 const targetCorrectPerQuestion = 5; // 1問あたりの目標正解数
 let answerSlotIndex = 0;        // 現在のスロットインデックス
 
-const playerName =
-    localStorage.getItem('playerName') || 'みんな';
-
 // --- 3. HTML要素の取得 ---
-const answerInput = document.getElementById('answer-input');
 const timeBar = document.getElementById('time-bar');
-const currentTurnLabel = document.getElementById('current-turn-label');
 const resultScreen = document.getElementById('result-screen');
 const resultTitle = document.getElementById('result-title');
 const resultMessage = document.getElementById('result-message');
@@ -403,10 +398,6 @@ const ratingDifficultCount = document.getElementById('rating-difficult-count');
 const ratingPanel = document.getElementById('rating-panel');
 const btnNextQuestion = document.getElementById('btn-next-question');
 const btnReplay = document.getElementById('btn-replay');
-const fairyMessage =
-    document.getElementById(
-        'fairy-message'
-    );
 const btnHomeReturn =
     document.getElementById(
         'btn-home-return'
@@ -433,8 +424,7 @@ function updateDisplay() {
     document.getElementById('question-text').textContent = `Q. ${currentQuiz.question}`;
     questionMetaDisplay.textContent = `ジャンル: ${currentQuiz.genre}`;
     questionAuthorDisplay.textContent = `作問者: ${currentQuiz.author}`;
-
-    currentTurnLabel.textContent = `${playerName}、みんなの答えを入力してね！`;
+    document.getElementById('answer-instructions').hidden = false;
 }
 
 function startTimer() {
@@ -584,11 +574,6 @@ if (sampleAnswers.length > 0) {
 
 }
 
-    if (fairyMessage) {
-        fairyMessage.style.display =
-            'none';
-    }
-
     resetRatingButtons();
 
     updateRatingDisplay();
@@ -602,47 +587,6 @@ function showResult() {
     const totalCorrect = allCorrectAnswers.length;
     const maxCorrect = targetCorrectPerQuestion * quizzesData.length;
     resultMessage.textContent = `合計 ${totalCorrect}/${maxCorrect} 個の正解をゲットしました！`;
-
-    const scoreRate =
-    totalCorrect / maxCorrect;
-
-let fairyMessages = [];
-
-if (scoreRate >= 0.8) {
-
-    fairyMessages = [
-        `${playerName}は詳しすぎない？`,
-        `${playerName}は森の博士かも...`,
-        `${playerName}、今日IQ高くない？`
-    ];
-
-} else if (scoreRate >= 0.5) {
-
-    fairyMessages = [
-        `${playerName}、なかなかやるね！`,
-        `森の妖精も感心しています。`,
-        `${playerName}、また遊びに来てね！`
-    ];
-
-} else {
-
-    fairyMessages = [
-        `大丈夫！また挑戦してみよう！`,
-        `${playerName}の次の挑戦を待ってるよ！`
-    ];
-
-}
-
-const randomFairyMessage =
-    fairyMessages[
-        Math.floor(
-            Math.random() *
-            fairyMessages.length
-        )
-    ];
-
-fairyMessage.textContent =
-    `👼 森の妖精「${randomFairyMessage}」`;
 
     if (resultAnswer) {
         resultAnswer.style.display = 'block';
@@ -658,7 +602,6 @@ for (const answerData of allCorrectAnswers) {
         }
         answersStr += answerData.answer;
     }
-console.log(fairyMessage);
 }
             answerText += `問題${i + 1}: ${answersStr}\n`;
         }
@@ -677,9 +620,6 @@ console.log(fairyMessage);
     if (btnHomeReturn) {
     btnHomeReturn.style.display = 'inline-block';
     }
-if (fairyMessage) {
-    fairyMessage.style.display = 'block';
-}
 }
 
 function moveToNextQuestion() {
@@ -710,7 +650,6 @@ bombImage.style.left =
 
 bombImage.style.animation =
     'none';
-        answerInput.value = '';
         feedback.textContent = '';
 
         for (let i = 0; i < 5; i++) {
@@ -723,7 +662,6 @@ bombImage.style.animation =
         }
 
         resultScreen.style.display = 'none';
-        answerInput.focus();
         updateDisplay();
         startTimer();
     }
@@ -754,7 +692,6 @@ function handleCorrect(answer) {
     feedback.classList.remove('wrong');
     feedback.classList.add('correct');
     
-    answerInput.value = '';
     updateDisplay();
     
     // 5個正解で次の問題へ
@@ -796,10 +733,6 @@ function handleWrong(answer) {
 
         }, 5000);
     }
-
-    answerInput.value = '';
-
-    answerInput.focus();
 
     setTimeout(function() {
 
@@ -888,49 +821,6 @@ if (btnReplay) {
         location.reload();
     });
 }
-
-// --- 5. 入力イベント ---
-answerInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const val = answerInput.value.trim();
-        const currentQuiz = quizzesData[currentQuestionIndex];
-
-        if (!currentQuiz) return;
-
-        const normalizedInput = val.replace(/\s+/g, '');
-        const normalizedAnswers = [];
-
-for (const answer of currentQuiz.validAnswers) {
-    normalizedAnswers.push(
-        answer.replace(/\s+/g, '')
-    );
-}
-
-let isCorrect = false;
-
-for (const answer of normalizedAnswers) {
-    if (answer === normalizedInput) {
-        isCorrect = true;
-    }
-}
-    let alreadyAnswered = false;
-
-for (const answerData of allCorrectAnswers) {
-    if (
-        answerData.question === currentQuestionIndex + 1 &&
-        answerData.answer === val
-    ) {
-        alreadyAnswered = true;
-    }
-}        
-
-        if (isCorrect && !alreadyAnswered) {
-            handleCorrect(val);
-        } else {
-            handleWrong();
-        }
-    }
-});
 
 // ゲーム開始
 async function initGame() {

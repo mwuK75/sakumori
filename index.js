@@ -111,17 +111,6 @@ if (startBtn) {
     startBtn.addEventListener(
         'click',
         () => {
-
-            const playerName =
-                document.getElementById(
-                    'player-name'
-                ).value;
-
-            localStorage.setItem(
-                'playerName',
-                playerName
-            );
-
             const checked =
                 document.querySelectorAll(
                     '.genre-list input:checked'

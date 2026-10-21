@@ -346,6 +346,12 @@ body.forest-mode {
 /* 問題文とタイマー */
 .question-area { text-align: center; margin-bottom: 30px; }
 #question-text { font-size: 1.6rem; color: #5c4a3d; margin-bottom: 20px; }
+.answer-instructions {
+    margin: 12px 0 20px;
+    color: #2e7d32;
+    font-weight: bold;
+    line-height: 1.6;
+}
 
 .fuse-container {
     display: flex;
@@ -362,17 +368,8 @@ body.forest-mode {
 }
 .bomb-icon { font-size: 2rem; margin-left: -10px; }
 
-/* 入力エリア */
-.input-area { text-align: center; }
-#current-turn-label { font-size: 1.3rem; font-weight: bold; color: #e8590c; margin-bottom: 15px; }
-#answer-input {
-    width: 80%;
-    padding: 15px;
-    font-size: 1.3rem;
-    border: 3px solid #ced4da;
-    border-radius: 30px;
-    text-align: center;
-}
+/* 回答結果の表示 */
+.feedback-area { text-align: center; }
 
 /* 結果画面のオーバーレイ */
 .result-overlay {
@@ -751,22 +748,6 @@ body.forest-mode {
 
     margin: 20px 0;
 }
-.fairy-message {
-
-    margin: 20px 0;
-
-    padding: 15px;
-
-    border-radius: 12px;
-
-    background: #f1fff0;
-
-    color: #2e7d32;
-
-    font-weight: bold;
-
-    font-size: 1.1rem;
-}
 .time-bar-container {
 
     position: relative;
@@ -841,23 +822,6 @@ body.forest-mode {
     border-radius: 10px;
 
     color: #8b5a00;
-
-    font-weight: bold;
-
-    text-align: center;
-
-}
-#answer-note {
-
-    margin-top: 10px;
-
-    padding: 8px;
-
-    background: #e8f5e9;
-
-    border-radius: 10px;
-
-    color: #2e7d32;
 
     font-weight: bold;
 
