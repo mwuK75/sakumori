@@ -87,6 +87,20 @@
 
             <p id="result-answer" class="result-answer"></p>
 
+            <section id="awards-screen" class="awards-screen" hidden>
+                <h2>🎉 表彰 🎉</h2>
+                <div class="award-card">
+                    <h3>🥇 一番正解したで賞</h3>
+                    <p id="most-correct-winners"></p>
+                </div>
+                <div class="award-card">
+                    <h3>🏅 一番チャレンジしたで賞</h3>
+                    <p id="most-attempts-winners"></p>
+                </div>
+                <p id="awards-data-warning" class="award-note" hidden></p>
+                <p class="award-note">👑 人気問題賞は準備中です</p>
+            </section>
+
             <div class="rating-panel" id="rating-panel">
                 <h3 id="rating-title">この問題を評価してね</h3>
                 <p id="rating-message">作問者へのフィードバックとして、押してみよう！</p>
@@ -98,6 +112,7 @@
             </div>
 
             <button class="btn-home" id="btn-next-question" type="button">次の問題へ</button>
+            <button class="btn-home" id="btn-show-awards" type="button" style="display:none; margin-top: 10px;">表彰を見る</button>
             <button class="btn-home" id="btn-replay" type="button" style="display:none; margin-top: 10px;">もう一度あそぶ</button>
             <button class="btn-home"id="btn-home-return"type="button"style="display:none; margin-top: 10px;">ホームへもどる</button>
 

@@ -406,6 +406,7 @@ body.forest-mode {
 .result-dialog {
     background-color: #fff; padding: 40px; border-radius: 20px;
     text-align: center; border: 4px solid #51cf66;
+    max-height: 90vh; overflow-y: auto;
 }
 
 .result-answer {
@@ -415,6 +416,32 @@ body.forest-mode {
     line-height: 1.5;
     white-space: pre-wrap;
     text-align: left;
+}
+
+.awards-screen {
+    margin: 20px 0;
+}
+
+.awards-screen h2 {
+    color: #2f5d3b;
+}
+
+.award-card {
+    margin: 14px 0;
+    padding: 14px;
+    border: 2px solid #d4a373;
+    border-radius: 12px;
+    background: #fff8e8;
+}
+
+.award-card h3,
+.award-card p {
+    margin: 6px 0;
+}
+
+.award-note {
+    color: #6b5b4d;
+    font-size: 0.95rem;
 }
 
 /* --- チームステータス表示 --- */

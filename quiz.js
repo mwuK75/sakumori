@@ -1,5 +1,8 @@
-let checkedAnswers = [];
 let gameStartTime = 0;
+const processedAnswerIds = new Set();
+const gameAnswerLog = [];
+let studentAnswerPollId = null;
+let feedbackTimeout = null;
 
 // 生徒回答を取得する関数
 async function loadStudentAnswers() {
@@ -11,66 +14,70 @@ async function loadStudentAnswers() {
             "https://script.google.com/macros/s/AKfycbwUN3skOBJjCB3jduqKxm9S_0lfMsGhN1YudMJITBgncm7KtQlxnksTgYs7haFxmnvA/exec"
         );
 
-    const data =
-        await response.json();
-        console.log("取得データ", data);
-
-
-for(const item of data) {
-    const answerTime =
-    new Date(item.timestamp).getTime();
-
-if(answerTime < gameStartTime){
-
-    console.log(
-        "ゲーム開始前の回答なので無視",
-        item.answer
-    );
-
-    continue;
-}
-    console.log(
-        "回答の問題番号",
-        item.questionId,
-        "現在の問題",
-        currentQuestionIndex + 1
-    );
-
-    if (
-        Number(item.questionId)
-        !== currentQuestionIndex + 1
-    ) {
-        console.log("別の問題なので無視");
-        continue;
+    if (!response.ok) {
+        throw new Error(`回答データの取得に失敗しました: ${response.status}`);
     }
 
-    console.log("現在の問題なので判定");
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+        throw new Error('回答データの形式が正しくありません');
+    }
 
-if (
-    checkedAnswers.includes(
-        item.answer
-    )
-) {
+    const submissionOccurrences = new Map();
+    for (const item of data) {
+        const answerTime = new Date(item.timestamp).getTime();
+        const questionIndex = Number(item.questionId) - 1;
+        const answer = String(item.answer || '').trim();
+        const name = String(item.name || '').trim() || '名前未入力';
+        const fingerprint = JSON.stringify([
+            item.timestamp,
+            item.questionId,
+            name,
+            answer
+        ]);
+        const occurrence = (submissionOccurrences.get(fingerprint) || 0) + 1;
+        submissionOccurrences.set(fingerprint, occurrence);
 
-    console.log(
-        "すでに判定済み",
-        item.answer
-    );
+        if (
+            !Number.isFinite(answerTime) ||
+            answerTime < gameStartTime ||
+            answer === '' ||
+            !Number.isInteger(questionIndex) ||
+            questionIndex < 0 ||
+            questionIndex >= quizzesData.length ||
+            questionIndex > currentQuestionIndex
+        ) {
+            continue;
+        }
 
-    continue;
-}
+        const submissionId = item.id != null && String(item.id) !== ''
+            ? String(item.id)
+            : JSON.stringify([fingerprint, occurrence]);
+        if (processedAnswerIds.has(submissionId)) {
+            continue;
+        }
+        processedAnswerIds.add(submissionId);
 
-    checkedAnswers.push(
-        item.answer
-    );
-console.log(
-    "checkStudentAnswerを呼ぶ",
-    item.answer
-);
-    checkStudentAnswer(
-        item.answer
-    );
-}
+        const quiz = quizzesData[questionIndex];
+        const isCorrect = quiz.validAnswers.some(
+            validAnswer => validAnswer.trim() === answer
+        );
+
+        gameAnswerLog.push({
+            name,
+            question: questionIndex + 1,
+            answer,
+            isCorrect
+        });
+
+        if (
+            questionIndex === currentQuestionIndex &&
+            !isTimeUp &&
+            resultScreen.style.display === 'none'
+        ) {
+            checkStudentAnswer(answer);
+        }
+    }
 }
 // 正解判定関数
 function checkStudentAnswer(answer) {
@@ -94,22 +101,9 @@ function checkStudentAnswer(answer) {
     if(normalized === ''){
     return;
 }
-    let isCorrect = false;
-
-    for(
-        const correctAnswer
-        of currentQuiz.validAnswers
-    ) {
-
-        if(
-            correctAnswer ===
-            normalized
-        ) {
-
-            isCorrect = true;
-
-        }
-    }
+    const isCorrect = currentQuiz.validAnswers.some(
+        correctAnswer => correctAnswer.trim() === normalized
+    );
 
     if(isCorrect) {
 
@@ -140,7 +134,8 @@ function checkStudentAnswer(answer) {
             handleCorrect(
                 normalized
             );
-
+        } else {
+            showAnswerFeedback('⭕ 正解！', 'correct');
         }
     } else {
 
@@ -397,7 +392,9 @@ const ratingUsefulCount = document.getElementById('rating-useful-count');
 const ratingDifficultCount = document.getElementById('rating-difficult-count');
 const ratingPanel = document.getElementById('rating-panel');
 const btnNextQuestion = document.getElementById('btn-next-question');
+const btnShowAwards = document.getElementById('btn-show-awards');
 const btnReplay = document.getElementById('btn-replay');
+const awardsScreen = document.getElementById('awards-screen');
 const btnHomeReturn =
     document.getElementById(
         'btn-home-return'
@@ -580,7 +577,22 @@ if (sampleAnswers.length > 0) {
 
 }
 
-function showResult() {
+async function showResult() {
+    const awardsDataWarning = document.getElementById('awards-data-warning');
+    if (studentAnswerPollId !== null) {
+        clearInterval(studentAnswerPollId);
+        studentAnswerPollId = null;
+    }
+
+    try {
+        await loadStudentAnswers();
+    } catch (error) {
+        console.error('終了時の回答データ取得に失敗しました', error);
+        awardsDataWarning.hidden = false;
+        awardsDataWarning.textContent =
+            '最新の回答を取得できなかったため、取得済みデータで表彰を集計しました。';
+    }
+
     resultScreen.style.display = 'flex';
     resultTitle.textContent = '🎉 ゲーム終了！ 🎉';
 
@@ -614,21 +626,74 @@ for (const answerData of allCorrectAnswers) {
     if (btnNextQuestion) {
         btnNextQuestion.style.display = 'none';
     }
+    if (btnShowAwards) {
+        btnShowAwards.style.display = 'inline-block';
+    }
     if (btnReplay) {
-        btnReplay.style.display = 'inline-block';
+        btnReplay.style.display = 'none';
     }
     if (btnHomeReturn) {
-    btnHomeReturn.style.display = 'inline-block';
+        btnHomeReturn.style.display = 'none';
+    }
+    if (awardsScreen) {
+        awardsScreen.hidden = true;
     }
 }
 
+function getWinners(countFor) {
+    const totals = new Map();
+
+    for (const entry of gameAnswerLog) {
+        const currentTotal = totals.get(entry.name) || 0;
+        totals.set(entry.name, currentTotal + (countFor(entry) ? 1 : 0));
+    }
+
+    const highestCount = Math.max(0, ...totals.values());
+    if (highestCount === 0) return [];
+
+    return [...totals.entries()]
+        .filter(([, count]) => count === highestCount)
+        .map(([name, count]) => ({ name, count }));
+}
+
+function showWinners(elementId, winners, countLabel) {
+    const element = document.getElementById(elementId);
+
+    if (winners.length === 0) {
+        element.textContent = '該当する回答はありません';
+        return;
+    }
+
+    element.textContent = winners
+        .map(winner => `${winner.name}さん（${countLabel}：${winner.count}）`)
+        .join('、');
+}
+
+function showAwards() {
+    showWinners(
+        'most-correct-winners',
+        getWinners(entry => entry.isCorrect),
+        '正解数'
+    );
+    showWinners(
+        'most-attempts-winners',
+        getWinners(() => true),
+        '回答数'
+    );
+
+    resultAnswer.hidden = true;
+    awardsScreen.hidden = false;
+    btnShowAwards.style.display = 'none';
+    btnReplay.style.display = 'inline-block';
+    btnHomeReturn.style.display = 'inline-block';
+}
+
 function moveToNextQuestion() {
-    checkedAnswers = [];
     clearInterval(timerId);
     currentQuestionIndex++;
 
     if (currentQuestionIndex >= quizzesData.length) {
-        showResult();
+        void showResult();
     } else {
         correctCount = 0;
         answerSlotIndex = 0;
@@ -688,9 +753,7 @@ function handleCorrect(answer) {
     answerSlotIndex++;
     
     // フィードバック表示
-    feedback.textContent = '⭕ 正解！';
-    feedback.classList.remove('wrong');
-    feedback.classList.add('correct');
+    showAnswerFeedback('⭕ 正解！', 'correct');
     
     updateDisplay();
     
@@ -710,10 +773,7 @@ function handleWrong(answer) {
     soundWrong.currentTime = 0;
     soundWrong.play();
 
-    // フィードバック表示
-    feedback.textContent = '❌ ハズレ！';
-    feedback.classList.remove('correct');
-    feedback.classList.add('wrong');
+    showAnswerFeedback('❌ ハズレ！', 'wrong');
 
     // 不正解の答えを表示
     const wrongAnswerArea =
@@ -734,12 +794,18 @@ function handleWrong(answer) {
         }, 5000);
     }
 
-    setTimeout(function() {
+}
 
+function showAnswerFeedback(message, resultClass) {
+    clearTimeout(feedbackTimeout);
+    feedback.textContent = message;
+    feedback.classList.remove('correct', 'wrong');
+    feedback.classList.add(resultClass);
+
+    feedbackTimeout = setTimeout(function() {
         feedback.textContent = '';
-        feedback.classList.remove('wrong');
-
-    }, 1000);
+        feedback.classList.remove(resultClass);
+    }, 4000);
 }
 
 function saveRatingsToStorage() {
@@ -822,26 +888,25 @@ if (btnReplay) {
     });
 }
 
+if (btnShowAwards) {
+    btnShowAwards.addEventListener('click', showAwards);
+}
+
 // ゲーム開始
 async function initGame() {
 
-    gameStartTime = Date.now();
-
-    console.log(
-        "ゲーム開始時刻",
-        new Date(gameStartTime)
-    );
-
     await loadQuizzesData();
 
+    gameStartTime = Date.now();
     updateDisplay();
 
     startTimer();
 
-    setInterval(
-        loadStudentAnswers,
-        2000
-    );
+    studentAnswerPollId = setInterval(() => {
+        loadStudentAnswers().catch(error => {
+            console.error('回答データの定期取得に失敗しました', error);
+        });
+    }, 2000);
 
 }
 
